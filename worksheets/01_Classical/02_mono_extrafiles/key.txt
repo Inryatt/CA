@@ -1,0 +1,2 @@
+qwertyuiopasdfghjklzxcvbnm
+abcdefghijklmnopqrstuvwxyz # this line isnt used its just a reference!

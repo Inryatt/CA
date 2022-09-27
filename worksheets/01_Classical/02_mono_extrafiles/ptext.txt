@@ -1,0 +1,4 @@
+this is a file
+to be encrypted by a simple cipher
+
+so long and thanks for all the fish!

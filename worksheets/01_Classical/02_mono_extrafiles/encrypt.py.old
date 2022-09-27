@@ -1,0 +1,14 @@
+import sys
+ASCII_OFFSET=96
+
+def main():
+    if len(sys.argv)<3:
+        print("Usage: python3 encrypt.py <key> <plaintext_file> <output_file>\nThe output will be created if it doesn't exist.")
+    key = sys.argv[1]
+    key = [ord(x)-ASCII_OFFSET for x in key]
+
+    with open(sys.argv[2],"r+") as f:
+        plaintext=f.readlines()
+    print(plaintext)
+
+main()
