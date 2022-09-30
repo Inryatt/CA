@@ -1,0 +1,131 @@
+Frequency tables for single characters (Obtained from running analysis.py in long texts)
+
+## Portuguese
+
+character(s) : nº occurrences : percentage 
+a : 152082 :      15.2%  =================================
+e : 122092 :      12.2%  ==============================
+o : 107068 :      10.7%  ============================
+s :  73750 :      7.39%  ======================
+r :  68111 :      6.82%  =====================
+i :  54173 :      5.43%  ==================
+d :  50244 :      5.03%  =================
+n :  48370 :      4.85%  ================
+m :  46702 :      4.68%  ================
+u :  43146 :      4.32%  ===============
+t :  41994 :      4.21%  ==============
+c :  39385 :      3.95%  =============
+l :  38475 :      3.85%  =============
+p :  23470 :      2.35%  ======
+v :  17173 :      1.72%  =
+h :  16285 :      1.63%  
+g :  12741 :      1.28%  
+b :  11705 :      1.17%  
+f :  10289 :      1.03%  
+q :  10010 :       1.0%  
+z :   4956 :     0.496%  
+j :   3047 :     0.305%  
+x :   2279 :     0.228%  
+y :    470 :    0.0471%  
+k :    177 :    0.0177%  
+w :    101 :    0.0101%  
+
+
+## English
+character(s) : nº occurrences : percentage 
+e :  17243 :      12.6%  =================================
+t :  11857 :      8.67%  ===========================
+a :  11324 :      8.28%  ===========================
+o :  10052 :      7.35%  =========================
+i :   9661 :      7.06%  ========================
+n :   9307 :       6.8%  ========================
+r :   8517 :      6.22%  =======================
+s :   8290 :      6.06%  ======================
+h :   7805 :       5.7%  =====================
+d :   6295 :       4.6%  ==================
+l :   5649 :      4.13%  =================
+u :   4044 :      2.96%  ============
+m :   3844 :      2.81%  ===========
+c :   3748 :      2.74%  ===========
+w :   3189 :      2.33%  ========
+y :   3080 :      2.25%  ========
+g :   2850 :      2.08%  =======
+f :   2818 :      2.06%  =======
+p :   2409 :      1.76%  ====
+b :   1829 :      1.34%  
+v :   1346 :     0.984%  
+k :   1035 :     0.756%  
+x :    247 :     0.181%  
+j :    196 :     0.143%  
+q :    141 :     0.103%  
+z :     51 :    0.0373%   
+
+
+# Methodology
+
+
+1. run analysis.py '[3] - Find Repeated' tool - which will give use the prime factors for the distances between repeated bits of text in the cryptogram and the frequency for the slices of text according to the guessed key size, based on the factors. The output of this is x_kasiski.txt
+2. With the results from 1 we can try to pinpoint the language used or redo 1 with a larger maximum distance to look for. (if the search distance is lower than the actual key length it will not give good results)
+3. Using the [4] option on the script we can try to break the code, giving it the key length we think is correct, based on 2. In case of very close similarities(<0.2% difference), the script will attempt to decrypt the text using multiple attempts at a key.
+
+# Text 1
+
+2. After analysis (The results are in the file 1_Solve/1_kasiski.txt), we can see* that for a key length of 9 (line 931), we have a similar frequency in characters as in Portuguese. Therefore, this is the key size we're testing with in the next steps. From the frequency analysis we can guess the key to be ['uivtsaqwy']
+3. The resulting text isn't too good but some parts are readable.
+
+\* This is done manually by scrolling but the graphs to the right allow us to quickly spot the correct pattern.
+# Text 2
+
+Kasiski's method results in 2_solve/2_kasiski.txt
+
+Probable key length: 18
+Probable key: ['ieryotbblreamhfaju']
+Probable language: (Most likely portuguese)
+Since the results weren't too good, key size 9 was attempted as well, even if its' frequency analysis wasn't as good.
+Probable Keys: ['iermotebd', 'iermotebl'] *
+*Since two probabilities were too close, two variations of the key were used to attempt to obtain the original message.
+
+Result: Attempt #2 started well but there's still a lot of noise
+(Attempts are marked with " =======next key========" to be quick to separate and jump between them)
+
+
+
+# Text 3 
+Probable key length: 13
+Likely language: Portuguese
+likely keys: ['qhprknctynfga', 'qdprknctynfga']
+
+Results: mostly decrypted, I think
+
+# text 4
+
+Probable key length: 9 ,18 (less likely)
+(18 key length could be 9 repeated twice, which I think is actually possible based on the results)
+Probable keys:
+['ymvxweukc']
+['ywfxwtuwcnmvtleupc', 'ybfxwtuwcnmvtleupc', 'ybfxwtuwmnmvtleupc']
+Likely language: English
+
+Results: Gibberish (Short text will have a much lower chance of successful decryption)
+
+
+# Text 5
+
+Probable key length: 18
+Most likely language: English
+probable keys:
+['mivcsxfbpviaqhyenu', 'mivcsxfbpviaqhjenu']
+
+Results: Gibberish
+# Text 6
+
+Kasiski's method results in 3_solve/3_kasiski.txt
+
+Probable key length: 13
+Most likely language: English
+probable keys:
+['uhtvorgxyrjke']
+
+Results: gibberish
+
+

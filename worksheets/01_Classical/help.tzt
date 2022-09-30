@@ -1,0 +1,150 @@
+key: 
+character(s) : nº occurrences : percentage 
+k :  30620 :      17.7%  =================================
+s :  18781 :      10.8%  ==========================
+x :  15773 :      9.11%  =======================
+d :  14794 :      8.54%  ======================
+o :  13669 :      7.89%  =====================
+c :  12391 :      7.15%  ====================
+u :  10083 :      5.82%  =================
+v :   9904 :      5.72%  ================
+y :   8453 :      4.88%  ==============
+e :   8447 :      4.88%  ==============
+w :   6569 :      3.79%  ===========
+r :   4795 :      2.77%  ======
+f :   4109 :      2.37%  ====
+b :   4001 :      2.31%  ===
+t :   3770 :      2.18%  ===
+z :   3649 :      2.11%  ==
+i :   2517 :      1.45%  
+n :    810 :     0.468%  
+q :     67 :    0.0387%  
+p :     14 :   0.00808%  
+l :      5 :   0.00289%  
+j :      2 :   0.00115%  
+m :      1 :  0.000577%  
+To go back to main menu, Ctrl-C.
+Analyze which segment? (Pick a number between 1-3 : 2
+Size of n-grams? (Pick between 1-173224) : 1
+key: 
+character(s) : nº occurrences : percentage 
+e :  30830 :      17.8%  =================================
+m :  18971 :      11.0%  ==========================
+r :  15612 :      9.01%  =======================
+x :  14667 :      8.47%  ======================
+i :  13642 :      7.88%  =====================
+w :  12281 :      7.09%  ===================
+o :   9994 :      5.77%  ================
+p :   9740 :      5.62%  ================
+s :   8642 :      4.99%  ==============
+y :   8577 :      4.95%  ==============
+q :   6625 :      3.82%  ===========
+l :   4756 :      2.75%  ======
+v :   4036 :      2.33%  ===
+z :   4036 :      2.33%  ===
+n :   3619 :      2.09%  ==
+t :   3617 :      2.09%  ==
+c :   2634 :      1.52%  
+h :    859 :     0.496%  
+k :     56 :    0.0323%  
+j :     23 :    0.0133%  
+g :      4 :   0.00231%  
+f :      2 :   0.00115%  
+d :      1 :  0.000577%  
+To go back to main menu, Ctrl-C.
+Analyze which segment? (Pick a number between 1-3 : 3
+Size of n-grams? (Pick between 1-173223) : 1
+key: 
+character(s) : nº occurrences : percentage 
+y :  30665 :      17.7%  =================================
+g :  18831 :      10.9%  ==========================
+l :  15980 :      9.23%  =======================
+r :  15038 :      8.68%  ======================
+c :  13604 :      7.85%  =====================
+q :  12433 :      7.18%  ====================
+i :   9980 :      5.76%  =================
+j :   9785 :      5.65%  ================
+m :   8529 :      4.92%  ==============
+s :   8321 :       4.8%  ==============
+k :   6528 :      3.77%  ==========
+f :   4790 :      2.77%  ======
+t :   4034 :      2.33%  ===
+p :   3992 :       2.3%  ===
+h :   3710 :      2.14%  ==
+n :   3520 :      2.03%  =
+w :   2525 :      1.46%  
+b :    874 :     0.505%  
+e :     58 :    0.0335%  
+d :     17 :   0.00981%  
+z :      7 :   0.00404%  
+a :      2 :   0.00115%  
+To go back to main menu, Ctrl-C.
+Analyze which segment? (Pick a number between 1-3 : ^C
+
+k becomes a
+s becomes e
+x becomes o
+d becomes s
+o becomes r
+c becomes i
+u becomes d
+v becomes n
+y becomes m
+e becomes u
+w becomes t
+r becomes c
+f becomes l
+b becomes p
+t becomes v
+z becomes h
+i becomes g
+n becomes b
+q becomes f
+p becomes q
+l becomes z
+j becomes j
+istlvsrmipnideeroniergoteoporaldasasooteodunsmreic
+e becomes a
+m becomes e
+r becomes o
+x becomes s
+i becomes r
+w becomes i
+o becomes d
+p becomes n
+s becomes m
+y becomes u
+q becomes t
+l becomes c
+v becomes l
+z becomes p
+n becomes v
+t becomes h
+c becomes g
+h becomes b
+k becomes f
+j becomes q
+g becomes z
+f becomes j
+riarraltdvreeistpvsnieitidlpnoemgroraitonudaarniia
+y becomes a
+g becomes e
+l becomes o
+r becomes s
+c becomes r
+q becomes i
+i becomes d
+j becomes n
+m becomes m
+s becomes u
+k becomes t
+f becomes c
+t becomes l
+p becomes p
+h becomes v
+n becomes h
+w becomes g
+b becomes b
+e becomes f
+d becomes q
+z becomes z

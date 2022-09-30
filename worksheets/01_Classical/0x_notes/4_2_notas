@@ -1,0 +1,9 @@
+A eficácia do decifrador de vignere usando análise de frequências de apenas um caracter
+tem algumas limitaçoes
+
+Quando a quantidade de caracteres presentes numa slice é igual isto levarà a este
+caracter a ficar possivelmente mal decifrado
+
+isto pode tambem acontecer quando a quantidade de caracteres presente e mais reduzida (chaves mais compridas) e quando a diferença entre %s seja pequena o suficiente.
+
+Uma maneira de resolver isto seria com recurso à analise de frequencias de grupos maiores de letras.

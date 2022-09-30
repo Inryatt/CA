@@ -1,4 +1,5 @@
-from operator import ne
+from email.mime import base
+from operator import ne, pos
 import re
 import sys
 import time
@@ -262,6 +263,7 @@ def main():
                         ['a','e','o','s','r','i','d','n','m','u','t','c','l','p','v','h','g','b','f','q','z','j','x','y','k','w'],
                     ]
                     newertexts=[]
+                    possible_keys=[]
                     for text in newtexts:
                         if i ==0:
                             inp =input("Do you know the language of the original message? y/n\n")
@@ -293,63 +295,108 @@ def main():
                             sumres+=p[1]
                         indecision=[]
                         res = [(pair[0],pair[1],round(((pair[1]/sumres)*100),2)) for pair in res]
-                        for i in range(0,len(res)-2):
-                            if res[i][2]-res[i+1][2]<0.1:
-                                indecision.append((res[i],res[i+1]))
-                        print(indecision)
-                        for i in range(len(res)-1):
-                            print(f"{res[i][0]} becomes {alphabets[lang][i]}")
-                        newtext=""
-                        for j in range(0,len(text)-1):
-                            #with open("log.txt","w+") as f:
-                            #    f.write(f"{res[j][0]} becomes {alphabets[lang][j]}\n")
-                            
-                            index=None
-                            for k in range(0,len(res)-1):                                
-                                if res[k][0] == text[j]:
-                                    index = k
-                                    break
-                           
-                            newtext+=alphabets[lang][k]
+                        #for i in range(0,len(res)-2):
+                        #    if res[i][2]-res[i+1][2]<0.1:
+                        #        indecision.append((res[i],res[i+1]))
+                        #print(indecision)
+                        print(res)
+                        if res[0][2]-res[1][2]<0.2:
+                            possible_keys.append((res[0][0],res[1][0]))
+                        else:
+                            possible_keys.append(res[0][0])
+                        
+                        #for i in range(len(res)-1):
+                        #    print(f"{res[i][0]} becomes {alphabets[lang][i]}")
+                        #newtext=""
+                        #for j in range(0,len(text)-1):
+                        #    #with open("log.txt","w+") as f:
+                        #    #    f.write(f"{res[j][0]} becomes {alphabets[lang][j]}\n")
+                        #    
+                        #    index=None
+                        #    for k in range(0,len(res)-1):                                
+                        #        if res[k][0] == text[j]:
+                        #            index = k
+                        #            break
+                        #   
+                        #    newtext+=alphabets[lang][k]
 
-                        newertexts.append(newtext)
+                        #newertexts.append(newtext)
                         i+=1
-                    finaltext =""
-                    #while  len(newertexts[0])>0:
-                    #   # print(f"{len(finaltext)}/{totalchar}")
-                    #    for i in range(0,len(newertexts)-1):
-                    #        finaltext+=newertexts[i][0]
-                    #        newertexts[i]=newertexts[i][1:]
+                    print(possible_keys)
+                    base_key = [x[0] for x in possible_keys]
                     
-                    #for i in range(0,-1):
-                    #    for j in range(0,len(newertexts)-1):
-                    #        finaltext+=newertexts[j][i]
+                    final_possible_keys=["".join(base_key)]
 
-                   
-                    while len(finaltext)<totalchar:
-                       # print(len(newertexts))
-                        #print(f"cur: {len(finaltext)}\ntar: {totalchar}")
-                        for i in range(len(newertexts)):
-                            if len(newertexts[i])>0:
-                                finaltext+=newertexts[i][0]
-                                newertexts[i]=newertexts[i][1:]
-                        done = True
+                    for i in range(len(possible_keys)):
+                        if len(possible_keys[i])!=1:
+                            for j in range(0,len(possible_keys[i])):
+                                print(possible_keys[i][j])
+                                tmp = base_key
+                                tmp[i]=possible_keys[i][j]
+                                print("".join(tmp))
+                                if "".join(tmp) not in final_possible_keys:
+                                  final_possible_keys.append("".join(tmp)) 
+                                
+                    print(final_possible_keys)
+                    base_char=alphabets[lang][0]
 
-                        for text in newertexts:
-                        
-                            if len(text)>0:
-                                done = False
-                        #print("----")
+                    # Calculate rotation
+                    newernewertexts=[]
+                    for key in final_possible_keys:
+                        newertexts=[]
+                        for i in range(len(newtexts)-1):
+                            #print(i)
+                            ntext=""
+                            for ch in newtexts[i]:
+                                ntext+=chr(((ord(ch)-ord(key[i])+26)%26 )+ 97)
+                            newertexts.append(ntext)
+                        newernewertexts.append(newertexts)
 
-                        if done:
-                            break
-                        
-                    with open("cracked.txt","w+") as f:
-                        f.write(finaltext)
+                    #finaltext =""
+                    ##while  len(newertexts[0])>0:
+                    ##   # print(f"{len(finaltext)}/{totalchar}")
+                    ##    for i in range(0,len(newertexts)-1):
+                    ##        finaltext+=newertexts[i][0]
+                    ##        newertexts[i]=newertexts[i][1:]
+                    #
+                    ##for i in range(0,-1):
+                    ##    for j in range(0,len(newertexts)-1):
+                    ##        finaltext+=newertexts[j][i]
+                    c = 0
+                    for newertexts in newernewertexts: 
+
+                        #print(len(newertexts))   
+                        #for t in newertexts:
+                        #   print(t[:50])
+                        # print(newertexts[:50])
+                        finaltext=""
+                        while len(finaltext)<totalchar:
+                           # print(len(newertexts))
+                            #print(f"cur: {len(finaltext)}\ntar: {totalchar}")
+                            for i in range(len(newertexts)):
+                                if len(newertexts[i])>0:
+                                    finaltext+=newertexts[i][0]
+                                    newertexts[i]=newertexts[i][1:]
+                            done = True
+
+                            for text in newertexts:
+
+                                if len(text)>0:
+                                    done = False
+                            #print("----")
+
+                            if done:
+                                break
+                            
+                        with open("cracked.txt","a") as f:
+                            f.write(finaltext)
+                            f.write("\n\n =======next key========\n\n")
+                        c+=1
+
                 case "0":
                     raise KeyboardInterrupt
     except KeyboardInterrupt:
         print("\nBye :)")
         return 0
-                
+
 main()
