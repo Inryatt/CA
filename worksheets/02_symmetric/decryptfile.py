@@ -30,7 +30,7 @@ def decrypt(key, infile, outfile, algo, mode, iv):
             print("Invalid algorithm!")
             exit(1)
     if good:
-        match mode:
+        match mode.upper():
             case "CBC":
                 mode = modes.CBC(iv)
             case "ECB":
@@ -101,4 +101,5 @@ def main():
             cipherdata['algo'], cipherdata['mode'], b64decode(cipherdata['iv']))
 
 
-main()
+if "__main__"==__name__:
+    main()

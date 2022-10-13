@@ -1,0 +1,19 @@
+JfZdoz3mdd2SRpTH8kOFSkQ6ybNeQghV0mTX9QnGehI=
+M4h0xKgCCLGI7miPabQLY4A58+s7ZJz0G2hXyQRQRv8=
+ntJ1t0GhQuXNx3N1RG6qxHJmfZpPspxO+tWLTbmqr9o=
+DlK599t4aNFi0MSTWbOOo+CMby0mvmQFBtHE8/GVnVk=
+VV8LxSPqwWkwzWdBxbGsQAL8cc8J8fNr0jLQIZMBcq4=
+JfiAkdepV0scvjgV+jvNuWw+SJ4uKKmijRrUWvgGMs0=
+j5rpwrShTBajEYNbVhv4YgTQ0SJ2LEw6OVapgVebWdM=
+L7y+0/lWC3ba7RTu8lguubwbMr/CYh+uf9heqmKkZGM=
+8no50M+KlQFtwzOyPxYQJfJVmhIwPgZ3bcTraqQFClA=
+fUNOBCclfCkkJiLShs55eLcoowqeojykXV3R5ljsUDM=
+
+
+❯ p3 digestdiff.py digests
+Counter({0.0: 48, 0.022727272727272728: 23, 0.045454545454545456: 15, 0.06818181818181818: 4})
+Similarity | Number of occurences
+       0.0 | =====================================================
+   0.04545 | ================
+   0.02273 | =========================
+   0.06818 | ====

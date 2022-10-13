@@ -9,7 +9,7 @@ from base64 import b64encode
 DES_BLOCK_SIZE = 8
 
 
-def encrypt(key, infile,outfile,algo, mode) -> dict:
+def encrypt(key, infile,outfile,algo, mode:str) -> dict:
     cipherdata = {
         "algo":algo,
         "mode":mode,
@@ -38,7 +38,7 @@ def encrypt(key, infile,outfile,algo, mode) -> dict:
         ivsize=int(algo.block_size/8)
         iv = os.urandom(algo.block_size)[:ivsize]
         cipherdata['iv']=b64encode(iv).decode('utf-8')
-        match mode:
+        match mode.upper():
             case "CBC":
                 mode = modes.CBC(iv)
             case "ECB":
@@ -109,10 +109,10 @@ def main():
 
  
     cipherdata=encrypt(key,infile,outfile,algo,mode)
-  
+    
     with open(definition ,"w+") as f:
         #f.write(str(cipherdata))
          f.write(json.dumps(cipherdata)) #-- issues with bytes due to IV
 
-
-main()
+if "__main__"==__name__:
+    main()
