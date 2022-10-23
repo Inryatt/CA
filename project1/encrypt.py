@@ -2,8 +2,8 @@ from os import read
 import sys
 from keygen import keygen
 
-from constants import EDES_BLOCK_SIZE,ROUND_NUM
-from utils import pad,read_from_stdin
+from constants import EDES_BLOCK_SIZE,ROUND_NUM, EDES_KEY_SIZE
+from utils import get_sboxes, pad,read_from_stdin
 
 def shuffle(inp:bytes,sbox:list) -> bytes:
     #TODO
@@ -25,7 +25,10 @@ def shuffle(inp:bytes,sbox:list) -> bytes:
     #out3=in3
     # TODO transform the out bytes with sboxes.
 
-
+    out0 = sbox[out0]
+    out1 = sbox[out1]
+    out2 = sbox[out2]
+    out3 = sbox[out3]
 
     return bytes([out0,out1,out2,out3])
     # Dark magic
@@ -54,7 +57,8 @@ def feistel_round(block:bytes,sbox:list) -> bytes:
 def encrypt(password:str,input_bytes:bytes) -> bytes:
     """Given a password, use EDES to encrypt data in byte format"""
     print("Encrypting...")
-    key = keygen(password,32) # Length is in bytes, 32 bytes -> 256 bits
+    key = keygen(password,EDES_KEY_SIZE) # Length is in bytes, 32 bytes -> 256 bits
+    sboxes = get_sboxes(key)
     input_blocks = [input_bytes[n:n+EDES_BLOCK_SIZE] for n in range(0, len(input_bytes),EDES_BLOCK_SIZE) ]
     
     # pad block
@@ -70,7 +74,7 @@ def encrypt(password:str,input_bytes:bytes) -> bytes:
     ciphertext=b""
     for tmp in range(ROUND_NUM):
         for i in range(len(input_blocks)):
-            input_blocks[i]=feistel_round(input_blocks[i],[''])
+            input_blocks[i]=feistel_round(input_blocks[i],key)
         #
         # print(input_blocks)
         for block in input_blocks:

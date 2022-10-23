@@ -84,5 +84,4 @@ def decrypt(password:str,input_bytes:bytes) -> bytes:
     return ptext
 
 if __name__=="__main__":
-
     print("dont run this directly.")
