@@ -1,8 +1,12 @@
+from hashlib import shake_256
 from pathlib import Path
+from random import sample
 import sys
+from weakref import finalize
 from constants import EDES_BLOCK_SIZE, EDES_KEY_SIZE, ROUND_NUM, SBOX_PATH, SBOX_SIZE
 from keygen import keygen
 from base64 import b64encode,b64decode
+from cryptography. hazmat.primitives import hashes
 
 def pad(input_blocks:list) -> list:
     """Pads a list of blocks with plaintext for EDES"""
@@ -23,7 +27,7 @@ def pad(input_blocks:list) -> list:
 def unpad(input_text:str) -> str:
     """Unpads a string previously padded. Might work with bytes, idk"""
     to_remove=int(input_text[-1])
-    print(to_remove)
+    #print(to_remove)
     input_text=input_text[:-to_remove]
     return input_text
 
@@ -35,8 +39,37 @@ def read_from_stdin() -> str:
 
 
 def generate_sbox(key : bytes) -> list[bytes]:
-    box=[bytes([b]) for b in range(SBOX_SIZE)]
+    # Derive key to get our seed
+    digest = hashes.Hash(hashes.SHAKE256(256))
+    digest.update(key)
+    seed = digest.finalize()
+    seedbox=[]
+    #print(seed)
+    for ch in seed:
+        seedbox.append(ch)
+ 
+    box = [str(i).encode('utf-8') for i in range(256)]
+    samplebox = [str(i).encode('utf-8') for i in range(256)]
+
+    # the values in seedbox the shift in position that will apply to each
+    # element of the s-box
+
+    seedbox=[(seedbox[i]+i)%len(seedbox) for i in range(len(seedbox))]
+    
+    # Shuffle the box contents ( seedbox -> shift values; samplebox-> copy of box)
+    for i in range(len(seedbox)):
+        samplebox=box
+        tmp=box[box.index(samplebox[i])]
+        box.remove(samplebox[i])
+        box.insert(seedbox[i],tmp)
+
     #TODO
+    # print(sorted([int(x.decode('utf-8')) for x in box])) --> To verify that the box contains all the elements, as it should
+    #for i in range(256):
+    #    if int(box[i].decode('utf-8'))==i:
+    #        print("BAD")
+    #exit(1)
+    print(box)
     return box
 
 def salt_key(key:bytes) -> bytes:
@@ -49,16 +82,15 @@ def salt_key(key:bytes) -> bytes:
     return keygen(keycopy,32)
 
 def transform_key(key:bytes) -> bytes:
-    print(key)
     key = key + b'1'
-    print(key)
     return key
-
+    # NEEDS REDO-ING!!!!!
 def get_sboxes(key:bytes)->list[bytes]:
     sboxes=[]
     i=0
 
-    boxpath = SBOX_PATH+ b64encode(salt_key(key)).decode('utf-8')
+    filename_box= bytes.hex(salt_key(key))#.decode('ascii')
+    boxpath = SBOX_PATH+filename_box
     boxpath=Path(boxpath)
     boxpath.parent.mkdir(exist_ok=True, parents=True)
 
@@ -66,22 +98,27 @@ def get_sboxes(key:bytes)->list[bytes]:
         with open(boxpath, 'r') as f:
             # Read S-boxes from file
             for line in f.readlines():
-                sboxes[i]=line.split(",")
-            if sboxes[i][-1] =="":
-                sboxes[i][-1].pop()
-            i+=1
+                line = line.strip()
+                sboxes.append(line.split(","))
+            for i in range(len(sboxes)):
+                if sboxes[i][-1]=='':
+                    sboxes[i].pop(-1)
+                for j in range(len(sboxes[i])):
+                    sboxes[i][j] = bytes.fromhex(sboxes[i][j])
     else:
         sboxes=[]
         for i in range(ROUND_NUM):
             key = transform_key(key)
             sboxes.append(generate_sbox(key))
+        print(sboxes)
         # Write S-Boxes to file
-        with open(boxpath, "w+") as f:
+        with open(boxpath, "wb+") as f:
             for sbox in sboxes:
                 for b in sbox:
-                    str_b=b.hex()
-                    f.write(str_b+", ")
-                f.write('\n')
+                    print(b)
+                    #str_b=bytes.hex(b)
+                    f.write(b+b", ")
+                f.write(b'\n')
     return sboxes
 
 if __name__ == "__main__":
@@ -91,4 +128,4 @@ if __name__ == "__main__":
     key = sys.argv[1]
     key = keygen(key.encode('utf-8'),EDES_KEY_SIZE) # Length is in bytes, 32 bytes -> 256 bits
 
-    get_sboxes(key)    
+    get_sboxes(key) 
