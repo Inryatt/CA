@@ -7,7 +7,8 @@ def main():
     key = b"testpassword"
     input_text= read_from_stdin() # TODO add verification if theres something here
     input_bytes=input_text.encode('utf-8')
-    sboxes = get_sboxes(key)
     encrypted=encrypt(key,input_bytes) # TODO implement a way to get the password
+    print(encrypted.hex())
     decrypted=decrypt(key,encrypted)
+    print(decrypted)
 main()

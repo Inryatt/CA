@@ -69,7 +69,7 @@ def generate_sbox(key : bytes) -> list[bytes]:
     #    if int(box[i].decode('utf-8'))==i:
     #        print("BAD")
     #exit(1)
-    print(box)
+    #print(box)
     return box
 
 def salt_key(key:bytes) -> bytes:
@@ -85,6 +85,8 @@ def transform_key(key:bytes) -> bytes:
     key = key + b'1'
     return key
     # NEEDS REDO-ING!!!!!
+
+
 def get_sboxes(key:bytes)->list[bytes]:
     sboxes=[]
     i=0
@@ -99,12 +101,24 @@ def get_sboxes(key:bytes)->list[bytes]:
             # Read S-boxes from file
             for line in f.readlines():
                 line = line.strip()
-                sboxes.append(line.split(","))
+                print(line)
+                sboxes.append(line.split(", "))
+                #print(sboxes)
             for i in range(len(sboxes)):
                 if sboxes[i][-1]=='':
                     sboxes[i].pop(-1)
                 for j in range(len(sboxes[i])):
-                    sboxes[i][j] = bytes.fromhex(sboxes[i][j])
+                    #to_read=sboxes[i][j].strip('0x')
+                    to_read =sboxes[i][j][2:]
+                    #if to_read=="":
+                    #    continue
+                    print(to_read)
+                    ##print(f"A{to_read}A")
+                    #if len(to_read)<2:
+                    #    to_read='0'+to_read
+                    ##print(to_read)
+                    sboxes[i][j] = bytes.fromhex(to_read)
+                print("\n=====================================\n")
     else:
         sboxes=[]
         for i in range(ROUND_NUM):
@@ -112,13 +126,20 @@ def get_sboxes(key:bytes)->list[bytes]:
             sboxes.append(generate_sbox(key))
         print(sboxes)
         # Write S-Boxes to file
-        with open(boxpath, "wb+") as f:
+        with open(boxpath, "w+") as f:
             for sbox in sboxes:
+                i=0
                 for b in sbox:
-                    print(b)
-                    #str_b=bytes.hex(b)
-                    f.write(b+b", ")
-                f.write(b'\n')
+                    # print(int(b))
+                    str_b=hex(int(b))
+                    # print(str_b)
+                    f.write(str_b)
+                    i+=1
+                    if i!=256:
+                        f.write(', ')
+
+                f.write('\n')
+    #print(sboxes)
     return sboxes
 
 if __name__ == "__main__":
@@ -128,4 +149,4 @@ if __name__ == "__main__":
     key = sys.argv[1]
     key = keygen(key.encode('utf-8'),EDES_KEY_SIZE) # Length is in bytes, 32 bytes -> 256 bits
 
-    get_sboxes(key) 
+    get_sboxes(key)
