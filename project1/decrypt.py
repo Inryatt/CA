@@ -65,12 +65,12 @@ def unfeistel_round(block:bytes,sbox:list) -> bytes:
     return right+left
 
 
-def decrypt(password:str,input_bytes:bytes) -> bytes:
+def decrypt(password:str,input_bytes:bytes,print_to_stdout=True) -> bytes:
     #print("Decrypting...")
 
     """Given a password, use EDES to decrypt data in byte format"""
     key = keygen(password,32) # Length is in bytes, 32 bytes -> 256 bits
-    sboxes = get_sboxes(key)
+    sboxes = get_sboxes(key,print_to_stdout)
 
     input_blocks = [input_bytes[n:n+EDES_BLOCK_SIZE] for n in range(0, len(input_bytes),EDES_BLOCK_SIZE) ]
     #print("original:")

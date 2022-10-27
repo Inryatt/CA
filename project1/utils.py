@@ -26,7 +26,6 @@ def pad(input_blocks:list) -> list:
 
 def unpad(input_text:str) -> str:
     """Unpads a string previously padded. Might work with bytes, idk"""
-    print(input_text)
     to_remove=int(chr(input_text[-1]))
     input_text=input_text[:-to_remove]
     return input_text
@@ -87,7 +86,7 @@ def transform_key(key:bytes) -> bytes:
     # NEEDS REDO-ING!!!!!
 
 
-def get_sboxes(key:bytes)->list[bytes]:
+def get_sboxes(key:bytes,print_to_stdout=True)->list[bytes]:
     sboxes=[]
     i=0
 
@@ -97,30 +96,38 @@ def get_sboxes(key:bytes)->list[bytes]:
     boxpath.parent.mkdir(exist_ok=True, parents=True)
 
     if not boxpath.exists():
-        print("[-] No sboxes found. Creating..")
+        if print_to_stdout:
+            print("[-] No sboxes found. Creating..")
         sboxes=[]
+        ret_sboxes=[]
         keycopy=key
         for i in range(ROUND_NUM):
             keycopy = transform_key(keycopy)
             sboxes.append(generate_sbox(keycopy))
-        #print(sboxes)
         # Write S-Boxes to file
         with open(boxpath, "w+") as f:
             for sbox in sboxes:
+                smolbox=[]
                 i=0
                 for b in sbox:
                     # print(int(b))
                     str_b=hex(int(b))
+                    ret_b=str(hex(int(b)))[2:]
+                    if len(ret_b)<2:
+                        ret_b='0'+ret_b
+                    smolbox.append(bytes.fromhex(ret_b))
                     # print(str_b)
                     f.write(str_b)
                     i+=1
                     if i!=256:
                         f.write(', ')
-
+                ret_sboxes.append(smolbox)
                 f.write('\n')
+        return ret_sboxes
     #print(sboxes)
     else:
-        print("[-] Sboxes found! Importing..")
+        if print_to_stdout:
+            print("[-] Sboxes found! Importing..")
     sboxes=[]
     with open(boxpath, 'r') as f:
         # Read S-boxes from file

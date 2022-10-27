@@ -45,7 +45,7 @@ def shuffle(inp: bytes, sbox: list) -> bytes:
 
 def feistel_round(block: bytes, sbox: list) -> bytes:
     #print("using box :")
-    # print(sbox)
+    #print(sbox)
     if len(block) != EDES_BLOCK_SIZE:
         print("Mismatched block size!")
         exit(1)
@@ -65,12 +65,11 @@ def feistel_round(block: bytes, sbox: list) -> bytes:
     return left+right
 
 
-def encrypt(password: bytes, input_bytes: bytes) -> bytes:
+def encrypt(password: bytes, input_bytes: bytes,print_to_stdout=True) -> bytes:
     """Given a password, use EDES to encrypt data in byte format"""
-    print("Encrypting...")
     # Length is in bytes, 32 bytes -> 256 bits
     key = keygen(password, EDES_KEY_SIZE)
-    sboxes = get_sboxes(key)
+    sboxes = get_sboxes(key,print_to_stdout)
     input_blocks = [input_bytes[n:n+EDES_BLOCK_SIZE]
                     for n in range(0, len(input_bytes), EDES_BLOCK_SIZE)]
 
@@ -108,12 +107,9 @@ def des_encrypt(key: bytes, input_bytes: bytes) -> bytes:
     ciphertext=b""
     while True:
             txt=input_bytes[:DES_BLOCK_SIZE]
-            print(txt)
             if not txt:
-                #f.write(cipher.encrypt(pad(b"",DES_BLOCK_SIZE)))
                 break
             else:
-               # ct = encryptor.update(padder.update(txt))
                 if len(txt)<DES_BLOCK_SIZE:
                     ciphertext+=cipher.encrypt(des_pad(txt,DES_BLOCK_SIZE))
                     break
