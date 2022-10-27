@@ -26,8 +26,8 @@ def pad(input_blocks:list) -> list:
 
 def unpad(input_text:str) -> str:
     """Unpads a string previously padded. Might work with bytes, idk"""
-    to_remove=int(input_text[-1])
-    #print(to_remove)
+    print(input_text)
+    to_remove=int(chr(input_text[-1]))
     input_text=input_text[:-to_remove]
     return input_text
 
@@ -96,35 +96,14 @@ def get_sboxes(key:bytes)->list[bytes]:
     boxpath=Path(boxpath)
     boxpath.parent.mkdir(exist_ok=True, parents=True)
 
-    if boxpath.exists():
-        with open(boxpath, 'r') as f:
-            # Read S-boxes from file
-            for line in f.readlines():
-                line = line.strip()
-                print(line)
-                sboxes.append(line.split(", "))
-                #print(sboxes)
-            for i in range(len(sboxes)):
-                if sboxes[i][-1]=='':
-                    sboxes[i].pop(-1)
-                for j in range(len(sboxes[i])):
-                    #to_read=sboxes[i][j].strip('0x')
-                    to_read =sboxes[i][j][2:]
-                    #if to_read=="":
-                    #    continue
-                    print(to_read)
-                    ##print(f"A{to_read}A")
-                    #if len(to_read)<2:
-                    #    to_read='0'+to_read
-                    ##print(to_read)
-                    sboxes[i][j] = bytes.fromhex(to_read)
-                print("\n=====================================\n")
-    else:
+    if not boxpath.exists():
+        print("[-] No sboxes found. Creating..")
         sboxes=[]
+        keycopy=key
         for i in range(ROUND_NUM):
-            key = transform_key(key)
-            sboxes.append(generate_sbox(key))
-        print(sboxes)
+            keycopy = transform_key(keycopy)
+            sboxes.append(generate_sbox(keycopy))
+        #print(sboxes)
         # Write S-Boxes to file
         with open(boxpath, "w+") as f:
             for sbox in sboxes:
@@ -140,6 +119,34 @@ def get_sboxes(key:bytes)->list[bytes]:
 
                 f.write('\n')
     #print(sboxes)
+    else:
+        print("[-] Sboxes found! Importing..")
+    sboxes=[]
+    with open(boxpath, 'r') as f:
+        # Read S-boxes from file
+        for line in f.readlines():
+            line = line.strip()
+            #print(line)
+            sboxes.append(line.split(", "))
+            #print(sboxes)
+        for i in range(len(sboxes)):
+            if sboxes[i][-1]=='':
+                sboxes[i].pop(-1)
+            for j in range(len(sboxes[i])):
+                #to_read=sboxes[i][j].strip('0x')
+                to_read =sboxes[i][j][2:]
+                #if to_read=="":
+                #    continue
+                if len(to_read)==1:
+                    to_read='0'+to_read
+                #print(to_read)
+                ##print(f"A{to_read}A")
+                #if len(to_read)<2:
+                #    to_read='0'+to_read
+                ##print(to_read)
+                sboxes[i][j] = bytes.fromhex(to_read)
+            #print("\n=====================================\n")
+   
     return sboxes
 
 if __name__ == "__main__":

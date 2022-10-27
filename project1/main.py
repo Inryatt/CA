@@ -10,5 +10,5 @@ def main():
     encrypted=encrypt(key,input_bytes) # TODO implement a way to get the password
     print(encrypted.hex())
     decrypted=decrypt(key,encrypted)
-    print(decrypted)
+    print(decrypted.hex())
 main()
