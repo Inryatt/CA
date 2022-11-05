@@ -1,16 +1,12 @@
-from hashlib import shake_256
 from pathlib import Path
-from random import sample
 import sys
-from weakref import finalize
 from constants import EDES_BLOCK_SIZE, EDES_KEY_SIZE, ROUND_NUM, SBOX_PATH, SBOX_SIZE
 from keygen import keygen
-from base64 import b64encode,b64decode
 from cryptography. hazmat.primitives import hashes
 
 def pad(input_blocks:list) -> list:
     """Pads a list of blocks with plaintext for EDES"""
-    
+
     input= input_blocks[-1]
     missing = EDES_BLOCK_SIZE - len(input)
     if missing == 0:
@@ -39,11 +35,13 @@ def read_from_stdin() -> str:
 
 def generate_sbox(key : bytes) -> list[bytes]:
     # Derive key to get our seed
+ 
+    
     digest = hashes.Hash(hashes.SHAKE256(256))
     digest.update(key)
     seed = digest.finalize()
     seedbox=[]
-    #print(seed)
+
     for ch in seed:
         seedbox.append(ch)
  
@@ -54,7 +52,7 @@ def generate_sbox(key : bytes) -> list[bytes]:
     # element of the s-box
 
     seedbox=[(seedbox[i]+i)%len(seedbox) for i in range(len(seedbox))]
-    
+
     # Shuffle the box contents ( seedbox -> shift values; samplebox-> copy of box)
     for i in range(len(seedbox)):
         samplebox=box
@@ -62,6 +60,8 @@ def generate_sbox(key : bytes) -> list[bytes]:
         box.remove(samplebox[i])
         box.insert(seedbox[i],tmp)
 
+    print(box)
+    exit(1)
     #TODO
     # print(sorted([int(x.decode('utf-8')) for x in box])) --> To verify that the box contains all the elements, as it should
     #for i in range(256):
@@ -72,6 +72,7 @@ def generate_sbox(key : bytes) -> list[bytes]:
     return box
 
 def salt_key(key:bytes) -> bytes:
+    """Despite the name, this function is used to generate the filename of the sboxes"""
     salt=0
     for b in key:
         salt = salt + b
@@ -81,7 +82,7 @@ def salt_key(key:bytes) -> bytes:
     return keygen(keycopy,32)
 
 def transform_key(key:bytes) -> bytes:
-    key = key + b'1'
+    key = key + b'\x01'
     return key
     # NEEDS REDO-ING!!!!!
 

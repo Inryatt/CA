@@ -69,6 +69,7 @@ def encrypt(password: bytes, input_bytes: bytes,print_to_stdout=True) -> bytes:
     """Given a password, use EDES to encrypt data in byte format"""
     # Length is in bytes, 32 bytes -> 256 bits
     key = keygen(password, EDES_KEY_SIZE)
+    print(key.hex())
     sboxes = get_sboxes(key,print_to_stdout)
     input_blocks = [input_bytes[n:n+EDES_BLOCK_SIZE]
                     for n in range(0, len(input_bytes), EDES_BLOCK_SIZE)]
@@ -128,6 +129,7 @@ if __name__ == "__main__":
         exit(1)
     print("[-] Encrypting..")
     key = sys.argv[1].encode("utf-8")
+    print(f"key: {key}")
     input_text = read_from_stdin()  # TODO add verification if theres something here
     input_bytes = input_text.encode('utf-8')
     if len(sys.argv) > 2 and sys.argv[2] == "-des":
@@ -140,3 +142,5 @@ if __name__ == "__main__":
     print(encrypted.hex())
     with open("encrypted", "w+") as f:
         f.write(encrypted.hex())
+
+

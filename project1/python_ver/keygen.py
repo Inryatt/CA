@@ -6,27 +6,29 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 
 def keygen(pw:bytes,len:int) -> bytes:
+    salt = b"\x00"   #os.urandom(16)
 
-    salt = b'x/00'#os.urandom(16)
     kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA1(),
+        algorithm=hashes.SHA256(),
         length=len, # bytes --> 16*8 
         salt=salt,
-        iterations=2000,
+        iterations=1,
     )
 
     key = kdf.derive(pw)
     return key
 
 def main():
-    if len(sys.argv)<3:
-        print("Usage: python3 keygen.py <password> <output file name>")
+    if len(sys.argv)<2:
+        print("Usage: python3 keygen.py <password>")
 
     pw = bytes(sys.argv[1].strip(),'utf-8')
+    for b in pw:
+        print(hex(b))
     key = keygen(pw,16)
 
-    with open(sys.argv[2],"wb+") as f:
-        f.write(key)
+    #with open(sys.argv[2],"wb+") as f:
+    #    f.write(key)
 
 if "__main__"==__name__:
     main()
