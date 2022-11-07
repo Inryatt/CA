@@ -1,10 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"log"
 	"os"
+	"sort"
 	"strconv"
+	"strings"
 
 	"golang.org/x/crypto/pbkdf2"
 	"golang.org/x/crypto/sha3"
@@ -12,6 +17,8 @@ import (
 
 const EDES_BLOCK_SIZE = 8
 const EDES_KEY_SIZE = 32
+const SBOX_PATH = "sboxes/"
+const ROUND_NUM = 16
 
 func main() {
 	// Only for testing purposes
@@ -50,9 +57,10 @@ func main() {
 
 	//fmt.Printf("%x\n", key_bytes)
 	//fmt.Printf("%x\n", transform_key(key_bytes))
-	key_B := transform_key(keygen([]byte(key), EDES_KEY_SIZE))
-	test_sbox := generate_sbox([]byte(key_B))
-	fmt.Printf("%x\n", test_sbox)
+	key_B := keygen([]byte(key), EDES_KEY_SIZE)
+	//test_sbox := generate_sbox([]byte(key_B))
+	get_sboxes(key_B, true)
+	//fmt.Printf("%x\n", test_sbox)
 }
 
 //Given a list of strings, pad the last one with bytes containing the number of characters needed to get to length of 8
@@ -122,12 +130,17 @@ func salt_key(key []byte) []byte {
 	for _, b := range key {
 		salt += int(b)
 	}
-	keycopy := append(key, strconv.Itoa(salt)...)
-	return keygen(keycopy, 32)
+
+	salt = salt - 1 // for consistency with the python version, which doesnt add the null byte at the end :)
+	keycopy := append(key[:len(key)-1], strconv.Itoa(salt)...)
+
+	a := keygen(keycopy, 32)
+	return a
 }
 
 func transform_key(key []byte) []byte {
 	key = append(key, byte(1))
+	key = keygen(key, 32)
 	return key
 }
 
@@ -141,50 +154,139 @@ func get_int_index(el int, searchlist []int) int {
 	return -1
 }
 
-func generate_sbox(key []byte) []byte {
+func generate_sbox(key []byte) []int {
 	// Derive key to get our seed
-	fmt.Printf("%x\n\n", key)
-	seedbox := make([]byte, 256)
+	//fmt.Printf("%x\n\n", key)
+	seedhash := make([]byte, 256)
 	c1 := sha3.NewShake256()
 	c1.Write(key)
-	c1.Read(seedbox)
+	c1.Read(seedhash)
 	// get a list of ints from a list of bytes with the values of these bytes
 
-	seedbox_i := make([]int, len(seedbox))
-	for i, b := range seedbox {
-		seedbox_i[i] = int(b)
+	seedbox := make([]int, len(seedhash))
+	for i, b := range seedhash {
+		seedbox[i] = int(b)
 	}
 
 	box := make([]int, 256)
-	samplebox := make([]int, 256)
 
 	for i := 0; i < 256; i++ {
 		box[i] = i
-		samplebox[i] = i
 	}
 
-	for i, b := range seedbox_i {
+	for i, b := range seedbox {
 		// add index to element
-		seedbox_i[i] = (b + i) % len(seedbox_i)
+		seedbox[i] = (b + i) % len(seedbox)
 	}
 
-	// this python code  for i in range(len(seedbox)):        samplebox=box        tmp=box[box.index(samplebox[i])]        box.remove(samplebox[i])        box.insert(seedbox[i],tmp)  in golang
-	for i := 0; i < len(seedbox_i); i++ {
-		samplebox = box
-		original_pos := box[get_int_index(samplebox[i], box)]
+	// declare a list of pairs of ints called shuffles
+	shuffle_pairs := make([][2]int, 0)
 
-		// remove element in index original_pos from box
-		box = append(box[:original_pos], box[original_pos+1:]...)
-		fmt.Println(box)
-
+	for i := 0; i < len(seedbox); i++ {
+		shuffle_pairs = append(shuffle_pairs, [2]int{seedbox[i], box[i]})
 	}
-	fmt.Println(box)
-	return nil
+
+	// sort the list of pairs by the first element of each pair
+	sort.Slice(shuffle_pairs, func(i, j int) bool {
+		return shuffle_pairs[i][0] < shuffle_pairs[j][0]
+	})
+
+	// get the second element of each pair and put it in a new list
+	shuffled_box := make([]int, len(shuffle_pairs))
+	for i, pair := range shuffle_pairs {
+		shuffled_box[i] = pair[1]
+	}
+	//fmt.Println(seedbox)
+	//fmt.Println(shuffle_pairs)
+	//fmt.Println(shuffled_box)
+
+	return shuffled_box
 }
 
 func get_sboxes(key []byte, print_to_stdout bool) {
 	// declare empty 2 dimensional array
+	sboxes := make([][]int, 0)
+	new_pass := salt_key(key)
 
-	return
+	filename_box := hex.EncodeToString(new_pass)
+
+	boxpath := SBOX_PATH + filename_box
+
+	if _, err := os.Stat(SBOX_PATH); os.IsNotExist(err) {
+		err := os.Mkdir(SBOX_PATH, os.ModePerm)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+
+	// check if the file exists
+	if _, err := os.Stat(boxpath); os.IsNotExist(err) {
+		// file does not exist
+		fmt.Println("[-] No sboxes found. Creating..")
+		ret_sboxes := make([][]int, 0)
+		keycopy := key
+		for i := 0; i < ROUND_NUM; i++ {
+			keycopy = transform_key(keycopy)
+			fmt.Println("Keycopy: ", keycopy)
+			ret_sboxes = append(ret_sboxes, generate_sbox(keycopy))
+		}
+
+		// write the sboxes to a file
+		file, err := os.Create(boxpath)
+		if err != nil {
+			fmt.Println("[!] Error creating sbox file!")
+			fmt.Println(err)
+		}
+		defer file.Close()
+
+		for _, sbox := range ret_sboxes {
+			for i, el := range sbox {
+				if i == len(sbox)-1 {
+					file.WriteString("0x" + strconv.FormatInt(int64(el), 16))
+				} else {
+					file.WriteString("0x" + strconv.FormatInt(int64(el), 16) + ", ")
+				}
+			}
+			file.WriteString("\n")
+		}
+		file.Sync()
+		sboxes = ret_sboxes
+	} else {
+		// file exists
+		fmt.Println("[-] Sboxes found! Importing..")
+		file, err := os.Open(boxpath)
+		if err != nil {
+			fmt.Println("[!] Error opening sbox file!")
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			line := scanner.Text()
+			sbox := make([]int, 0)
+			for _, el := range strings.Split(line, ", ") {
+
+				if el != "" {
+
+					// remove the 0x
+					el = el[2:]
+					el_int, err := strconv.ParseInt(el, 16, 64)
+
+					if err != nil {
+						fmt.Println("[!] Error converting sbox element to int!")
+					}
+					sbox = append(sbox, int(el_int))
+				}
+			}
+			sboxes = append(sboxes, sbox)
+		}
+	}
+
+	if print_to_stdout {
+		for i, sbox := range sboxes {
+			fmt.Println("Sbox", i)
+			fmt.Println(sbox)
+		}
+	}
 
 }
