@@ -71,11 +71,10 @@ def salt_key(key:bytes) -> bytes:
     salt=0
     for b in key:
         salt = salt + b
+    print("salt: ",salt)
     keycopy = key+str(salt).encode('utf-8')
-
-    print(f"keycopy: {[i for i in keycopy]}")
+    print(f"Salted key: {[i for i in keycopy]}")
     a= keygen(keycopy,32)
-    print(f"a: {[i for i in a]}")
     return a
 
 def transform_key(key:bytes) -> bytes:
@@ -86,11 +85,9 @@ def transform_key(key:bytes) -> bytes:
 
 def get_sboxes(key:bytes,print_to_stdout=True)->list[bytes]:
     sboxes=[]
-    i=0
     new_pass = salt_key(key)
-    print(f"new_pass: {[i for i in new_pass]}")
+
     filename_box= bytes.hex(new_pass)#.decode('ascii')
-    print(filename_box)
     boxpath = SBOX_PATH+filename_box
     boxpath=Path(boxpath)
     boxpath.parent.mkdir(exist_ok=True, parents=True)
@@ -103,7 +100,7 @@ def get_sboxes(key:bytes,print_to_stdout=True)->list[bytes]:
         keycopy=key
         for i in range(ROUND_NUM):
             keycopy = transform_key(keycopy)
-            print(f"keycopy: {[i for i in keycopy]}")
+#            print(f"keycopy: {[i for i in keycopy]}")
             sboxes.append(generate_sbox(keycopy))
         # Write S-Boxes to file
         with open(boxpath, "w+") as f:

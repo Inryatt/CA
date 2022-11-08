@@ -20,7 +20,7 @@ const EDES_KEY_SIZE = 32
 const SBOX_PATH = "sboxes/"
 const ROUND_NUM = 16
 
-func main() {
+func test_main() {
 	// Only for testing purposes
 	if len(os.Args) < 2 {
 		fmt.Println("[!] Please provide a password!")
@@ -65,17 +65,17 @@ func main() {
 
 //Given a list of strings, pad the last one with bytes containing the number of characters needed to get to length of 8
 //If the last string is already 8 characters, add a new string with 8 bytes of 8
-func pad(input_blocks []string) []string {
+func pad(input_blocks [][]byte) [][]byte {
 	last_block_len := len(input_blocks[len(input_blocks)-1])
 	last_block := input_blocks[len(input_blocks)-1]
 	missing := 8 - last_block_len
-
 	if missing == 0 {
-		input_blocks = append(input_blocks, string([]byte{8, 8, 8, 8, 8, 8, 8, 8}))
+		input_blocks = append(input_blocks, []byte{8, 8, 8, 8, 8, 8, 8, 8})
+
 		return input_blocks
 	} else {
 		for i := 0; i < missing; i++ {
-			last_block += strconv.Itoa(missing)
+			last_block = append(last_block, strconv.Itoa(missing)...)
 		}
 	}
 	input_blocks[len(input_blocks)-1] = last_block
@@ -104,9 +104,8 @@ func read_from_stdin() string {
 	return input
 }
 
-// Go-original function
-func break_to_blocks(input string) []string {
-	input_blocks := []string{}
+func break_to_blocks(input []byte) [][]byte {
+	input_blocks := [][]byte{}
 	for len(input) >= 8 {
 		input_blocks = append(input_blocks, input[:8])
 		input = input[8:]
@@ -117,9 +116,12 @@ func break_to_blocks(input string) []string {
 
 func keygen(pw []byte, len int) []byte {
 	// Generate a key of len bytes from a password
-	salt := []byte{0}
-	key := pbkdf2.Key(pw, salt, 1, len, sha256.New)
 
+	fmt.Println("3 pw: ", pw)
+	salt := []byte{0}
+	fmt.Println("salt: ", salt)
+	key := pbkdf2.Key(pw, salt, 1, len, sha256.New)
+	fmt.Println("key: ", key)
 	return key
 }
 
@@ -130,10 +132,8 @@ func salt_key(key []byte) []byte {
 	for _, b := range key {
 		salt += int(b)
 	}
-
-	salt = salt - 1 // for consistency with the python version, which doesnt add the null byte at the end :)
-	keycopy := append(key[:len(key)-1], strconv.Itoa(salt)...)
-
+	//salt = salt - 1 // for consistency with the python version, which doesnt add the null byte at the end :)
+	keycopy := append(key, strconv.Itoa(salt)...)
 	a := keygen(keycopy, 32)
 	return a
 }
@@ -203,8 +203,7 @@ func generate_sbox(key []byte) []int {
 	return shuffled_box
 }
 
-func get_sboxes(key []byte, print_to_stdout bool) {
-	// declare empty 2 dimensional array
+func get_sboxes(key []byte, print_to_stdout bool) [][]int {
 	sboxes := make([][]int, 0)
 	new_pass := salt_key(key)
 
@@ -227,7 +226,7 @@ func get_sboxes(key []byte, print_to_stdout bool) {
 		keycopy := key
 		for i := 0; i < ROUND_NUM; i++ {
 			keycopy = transform_key(keycopy)
-			fmt.Println("Keycopy: ", keycopy)
+			//fmt.Println("Keycopy: ", keycopy)
 			ret_sboxes = append(ret_sboxes, generate_sbox(keycopy))
 		}
 
@@ -288,5 +287,6 @@ func get_sboxes(key []byte, print_to_stdout bool) {
 			fmt.Println(sbox)
 		}
 	}
+	return sboxes
 
 }
