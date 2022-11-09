@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/hex"
 	"fmt"
-	"os"
 )
 
 func shuffle(inp []byte, sbox []int) []byte {
@@ -25,6 +23,7 @@ func shuffle(inp []byte, sbox []int) []byte {
 	out2 = sbox[out2]
 	out3 = sbox[out3]
 
+	fmt.Println("Out: ", out0, out1, out2, out3)
 	out := []byte{byte(out0), byte(out1), byte(out2), byte(out3)}
 	return out
 }
@@ -33,6 +32,7 @@ func feistel_round(block []byte, sbox []int) []byte {
 	if len(block) != EDES_BLOCK_SIZE {
 		panic("Mismatched block size!")
 	}
+	fmt.Println(block)
 	left := block[:4]
 	tmp := left
 	right := block[4:]
@@ -40,7 +40,8 @@ func feistel_round(block []byte, sbox []int) []byte {
 	outp := shuffle(right, sbox)
 	//fmt.Printf("shuffled: %x\n", shuffled)
 	left = right
-
+	fmt.Println("outp: ", outp)
+	fmt.Println("tmp: ", tmp)
 	// make right empty byte slice
 	right = make([]byte, 0)
 	// xor the elements of outp and temp
@@ -48,13 +49,15 @@ func feistel_round(block []byte, sbox []int) []byte {
 		right = append(right, outp[i]^tmp[i])
 	}
 
+	fmt.Println("Right: ", right)
+	//fmt.Printf("left: %x, right: %x\n", left, right)
 	//fmt.Printf("xored: %x\n", xored)
 	return append(left, right...)
 }
 
 func encrypt(password []byte, input_bytes []byte, print_to_stdout bool) []byte {
 	// generate sboxes
-	fmt.Println("2 Key: ", password)
+	//fmt.Println("2 Key: ", password)
 
 	key := keygen(password, EDES_KEY_SIZE)
 
@@ -66,13 +69,12 @@ func encrypt(password []byte, input_bytes []byte, print_to_stdout bool) []byte {
 
 	// pad input
 	input := pad(input_blocks)
-
+	fmt.Println(input)
 	// encrypt
 	encrypted := make([]byte, 0)
 
 	for tmp := 0; tmp < (16); tmp++ {
 		for i := 0; i < (len(input)); i++ {
-
 			input[i] = feistel_round(input[i], sboxes[tmp])
 		}
 	}
@@ -81,23 +83,4 @@ func encrypt(password []byte, input_bytes []byte, print_to_stdout bool) []byte {
 		encrypted = append(encrypted, b...)
 	}
 	return encrypted
-}
-
-func main() {
-	// parse args from command line to get key
-	key := []byte(os.Args[1])
-	fmt.Println("1 Key: ", key)
-	input_text := read_from_stdin()
-	input_bytes := []byte(input_text)
-
-	if len(os.Args) > 2 && os.Args[2] == "-des" {
-		// encrypt with des
-		print()
-	} else {
-		encrypted := hex.EncodeToString(encrypt(key, input_bytes, false))
-		fmt.Print((encrypted))
-		os.WriteFile("encrypted", []byte(encrypted), 0644)
-	}
-	fmt.Println("[-] Encrypted!")
-
 }

@@ -26,6 +26,7 @@ func test_main() {
 		fmt.Println("[!] Please provide a password!")
 		os.Exit(1)
 	}
+
 	//	input := os.Args[1]
 	//
 	//	// Block separation test
@@ -59,7 +60,7 @@ func test_main() {
 	//fmt.Printf("%x\n", transform_key(key_bytes))
 	key_B := keygen([]byte(key), EDES_KEY_SIZE)
 	//test_sbox := generate_sbox([]byte(key_B))
-	get_sboxes(key_B, true)
+	get_sboxes(key_B, false)
 	//fmt.Printf("%x\n", test_sbox)
 }
 
@@ -115,13 +116,8 @@ func break_to_blocks(input []byte) [][]byte {
 }
 
 func keygen(pw []byte, len int) []byte {
-	// Generate a key of len bytes from a password
-
-	fmt.Println("3 pw: ", pw)
 	salt := []byte{0}
-	fmt.Println("salt: ", salt)
 	key := pbkdf2.Key(pw, salt, 1, len, sha256.New)
-	fmt.Println("key: ", key)
 	return key
 }
 
@@ -185,11 +181,19 @@ func generate_sbox(key []byte) []int {
 	for i := 0; i < len(seedbox); i++ {
 		shuffle_pairs = append(shuffle_pairs, [2]int{seedbox[i], box[i]})
 	}
+	fmt.Println(shuffle_pairs)
 
 	// sort the list of pairs by the first element of each pair
 	sort.Slice(shuffle_pairs, func(i, j int) bool {
-		return shuffle_pairs[i][0] < shuffle_pairs[j][0]
+		if shuffle_pairs[i][0] != shuffle_pairs[j][0] {
+			return shuffle_pairs[i][0] < shuffle_pairs[j][0]
+		} else if shuffle_pairs[i][0] == shuffle_pairs[j][0] {
+			return shuffle_pairs[i][1] < shuffle_pairs[j][1]
+		}
+		panic("THIS SHOULD NOT HAPPEN")
+		return false
 	})
+	fmt.Println(shuffle_pairs)
 
 	// get the second element of each pair and put it in a new list
 	shuffled_box := make([]int, len(shuffle_pairs))
@@ -198,7 +202,7 @@ func generate_sbox(key []byte) []int {
 	}
 	//fmt.Println(seedbox)
 	//fmt.Println(shuffle_pairs)
-	//fmt.Println(shuffled_box)
+	fmt.Println(shuffled_box)
 
 	return shuffled_box
 }
@@ -264,9 +268,7 @@ func get_sboxes(key []byte, print_to_stdout bool) [][]int {
 			line := scanner.Text()
 			sbox := make([]int, 0)
 			for _, el := range strings.Split(line, ", ") {
-
 				if el != "" {
-
 					// remove the 0x
 					el = el[2:]
 					el_int, err := strconv.ParseInt(el, 16, 64)
@@ -281,12 +283,12 @@ func get_sboxes(key []byte, print_to_stdout bool) [][]int {
 		}
 	}
 
-	if print_to_stdout {
-		for i, sbox := range sboxes {
-			fmt.Println("Sbox", i)
-			fmt.Println(sbox)
-		}
-	}
+	//if print_to_stdout {
+	//	for i, sbox := range sboxes {
+	//		fmt.Println("Sbox", i)
+	//		fmt.Println(sbox)
+	//	}
+	//}
 	return sboxes
 
 }
