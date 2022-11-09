@@ -1,8 +1,6 @@
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 func shuffle(inp []byte, sbox []int) []byte {
 	if len(inp) != 4 {
@@ -31,10 +29,11 @@ func feistel_round(block []byte, sbox []int) []byte {
 	if len(block) != EDES_BLOCK_SIZE {
 		panic("Mismatched block size!")
 	}
-	fmt.Println(block)
 	left := block[:4]
+	//fmt.Println("left: ", left)
 	tmp := left
 	right := block[4:]
+	//fmt.Println("right: ", right)
 	//fmt.Printf("left: %x, right: %x\n", left, right)
 	outp := shuffle(right, sbox)
 	//fmt.Printf("shuffled: %x\n", shuffled)
@@ -45,7 +44,6 @@ func feistel_round(block []byte, sbox []int) []byte {
 	for i := 0; i < len(outp); i++ {
 		right = append(right, outp[i]^tmp[i])
 	}
-
 	//fmt.Printf("left: %x, right: %x\n", left, right)
 	//fmt.Printf("xored: %x\n", xored)
 	return append(left, right...)
@@ -62,15 +60,25 @@ func encrypt(password []byte, input_bytes []byte, print_to_stdout bool) []byte {
 	input_blocks := break_to_blocks(input_bytes)
 
 	//fmt.Println(sboxes)
-
+	fmt.Println(input_blocks)
 	// pad input
 	input := pad(input_blocks)
 	// encrypt
+	fmt.Println(input_blocks)
+
 	encrypted := make([]byte, 0)
 
-	for tmp := 0; tmp < (16); tmp++ {
-		for i := 0; i < (len(input)); i++ {
-			input[i] = feistel_round(input[i], sboxes[tmp])
+	for tmp := 0; tmp < 16; tmp++ {
+
+		for i := 0; i < len(input); i++ {
+			// SLICES ARE POINTERS
+			// SLICES ARE POINTERS
+			// SLICES ARE POINTERS
+
+			input_copy := make([]byte, len(input[i]))
+			copy(input_copy, input[i])
+			input[i] = feistel_round(input_copy, sboxes[tmp])
+
 		}
 	}
 

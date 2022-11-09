@@ -83,14 +83,12 @@ func pad(input_blocks [][]byte) [][]byte {
 	return input_blocks
 }
 
-func unpad(inputText string) string {
+func unpad(inputText []byte) []byte {
 	/* Unpads a string previously padded. Might work with bytes, idk */
-	fmt.Println(inputText)
-
 	toRemove_str := inputText[len(inputText)-1:]
-	toRemove, err := strconv.Atoi(toRemove_str)
+	toRemove, err := strconv.Atoi(string(toRemove_str))
 	if err != nil {
-		fmt.Println("[!] Error unpadding!")
+		panic("[!] Could not unpad!")
 	}
 	inputText = inputText[:len(inputText)-toRemove]
 	return inputText
@@ -183,7 +181,6 @@ func generate_sbox(key []byte) []int {
 	for i := 0; i < len(seedbox); i++ {
 		shuffle_pairs = append(shuffle_pairs, [2]int{seedbox[i], box[i]})
 	}
-	fmt.Println(shuffle_pairs)
 
 	// sort the list of pairs by the first element of each pair
 	sort.Slice(shuffle_pairs, func(i, j int) bool {
@@ -195,7 +192,6 @@ func generate_sbox(key []byte) []int {
 		panic("THIS SHOULD NOT HAPPEN")
 		return false
 	})
-	fmt.Println(shuffle_pairs)
 
 	// get the second element of each pair and put it in a new list
 	shuffled_box := make([]int, len(shuffle_pairs))
@@ -204,7 +200,6 @@ func generate_sbox(key []byte) []int {
 	}
 	//fmt.Println(seedbox)
 	//fmt.Println(shuffle_pairs)
-	fmt.Println(shuffled_box)
 
 	return shuffled_box
 }
@@ -227,7 +222,9 @@ func get_sboxes(key []byte, print_to_stdout bool) [][]int {
 	// check if the file exists
 	if _, err := os.Stat(boxpath); os.IsNotExist(err) {
 		// file does not exist
-		fmt.Println("[-] No sboxes found. Creating..")
+		if print_to_stdout {
+			fmt.Println("[-] No sboxes found. Creating..")
+		}
 		ret_sboxes := make([][]int, 0)
 		keycopy := key
 		for i := 0; i < ROUND_NUM; i++ {
@@ -258,7 +255,9 @@ func get_sboxes(key []byte, print_to_stdout bool) [][]int {
 		sboxes = ret_sboxes
 	} else {
 		// file exists
-		fmt.Println("[-] Sboxes found! Importing..")
+		if print_to_stdout {
+			fmt.Println("[-] Sboxes found! Importing..")
+		}
 		file, err := os.Open(boxpath)
 		if err != nil {
 			fmt.Println("[!] Error opening sbox file!")

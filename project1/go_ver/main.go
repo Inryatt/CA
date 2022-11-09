@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"time"
 )
@@ -12,7 +13,6 @@ func main() {
 	// parse args from command line to get key
 	//
 	//fmt.Println("1 Key: ", key)
-	input_text := read_from_stdin()
 
 	dec := flag.Bool("d", false, "decrypt")
 	enc := flag.Bool("e", false, "encrypt")
@@ -39,15 +39,18 @@ func main() {
 			panic("Usage: go_ver -s des/edes")
 		}
 		speed(des, edes)
-		return
+		os.Exit(0)
 	}
+	input_text := read_from_stdin()
+
 	if *dec && *enc {
 		fmt.Println("[-] Error: both -d and -e flags set!")
 		print_usage()
 	}
+
 	if *dec {
 		fmt.Println("[-] Decrypting...")
-		fmt.Println([]byte(input_text))
+		fmt.Println(input_text)
 		input_bytes, err := hex.DecodeString(input_text)
 		fmt.Println("Input bytes: ", input_bytes)
 		if err != nil {
@@ -58,7 +61,9 @@ func main() {
 		fmt.Println("[-] Output: ", string(decrypted))
 		return
 	}
+
 	if *enc {
+
 		fmt.Println("[-] Encrypting...")
 		input_bytes := []byte(input_text)
 
@@ -84,7 +89,6 @@ func print_usage() {
 
 func speed(des bool, edes bool) {
 	buffer := urandom(4096)
-
 	if edes {
 		edes_time := []int{}
 		for i := 0; i < 100; i++ {
@@ -93,9 +97,10 @@ func speed(des bool, edes bool) {
 			encrypted := encrypt(key, buffer, false)
 			decrypted := decrypt(key, encrypted, false)
 			end := time.Now()
-			if decrypted != buffer {
-				panic("[!] Something failed here!")
-			}
+			//if decrypted != buffer {
+			//	panic("[!] Something failed here!")
+			//}
+			decrypted = decrypted
 			edes_time = append(edes_time, int(end.Sub(start).Milliseconds()))
 		}
 		// get minimum value in edes_time
@@ -119,11 +124,10 @@ func check(err error) {
 }
 
 func urandom(size int) []byte {
-	size_byte := make([]byte, size, size)
+	size_byte := make([]byte, size)
 	f, err := os.Open("/dev/urandom")
 	check(err)
-	n, err := f.Read(size_byte)
-	fmt.Println(size_byte)
+	n, err := io.ReadFull(f, size_byte)
 	if len(size_byte) != n || err != nil {
 		panic("Error reading urandom")
 	}
