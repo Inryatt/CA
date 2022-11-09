@@ -21,7 +21,7 @@ def main():
      print(min(edes_times))
 
     if "des" in sys.argv:
-     for i in range(10000):
+     for i in range(1000):
         key=urandom(10) # can be any size :)
         start = clock_gettime(CLOCK_REALTIME)
         encrypted=encrypt.des_encrypt(key,buffer)

@@ -23,7 +23,6 @@ func shuffle(inp []byte, sbox []int) []byte {
 	out2 = sbox[out2]
 	out3 = sbox[out3]
 
-	fmt.Println("Out: ", out0, out1, out2, out3)
 	out := []byte{byte(out0), byte(out1), byte(out2), byte(out3)}
 	return out
 }
@@ -40,8 +39,6 @@ func feistel_round(block []byte, sbox []int) []byte {
 	outp := shuffle(right, sbox)
 	//fmt.Printf("shuffled: %x\n", shuffled)
 	left = right
-	fmt.Println("outp: ", outp)
-	fmt.Println("tmp: ", tmp)
 	// make right empty byte slice
 	right = make([]byte, 0)
 	// xor the elements of outp and temp
@@ -49,7 +46,6 @@ func feistel_round(block []byte, sbox []int) []byte {
 		right = append(right, outp[i]^tmp[i])
 	}
 
-	fmt.Println("Right: ", right)
 	//fmt.Printf("left: %x, right: %x\n", left, right)
 	//fmt.Printf("xored: %x\n", xored)
 	return append(left, right...)
@@ -69,7 +65,6 @@ func encrypt(password []byte, input_bytes []byte, print_to_stdout bool) []byte {
 
 	// pad input
 	input := pad(input_blocks)
-	fmt.Println(input)
 	// encrypt
 	encrypted := make([]byte, 0)
 

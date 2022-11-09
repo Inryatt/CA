@@ -26,6 +26,7 @@ func unshuffle(inp []byte, sbox []int) []byte {
 }
 
 func unfeistel_round(block []byte, sbox []int) []byte {
+	fmt.Println(block)
 	if len(block) != EDES_BLOCK_SIZE {
 		panic("Mismatched block size!")
 	}
@@ -46,9 +47,11 @@ func decrypt(password []byte, input_bytes []byte, print_to_stdout bool) []byte {
 	sboxes := get_sboxes(key, false)
 	// Split the input into blocks
 	input_blocks := break_to_blocks(input_bytes)
+	fmt.Println(input_blocks)
 	// Decrypt each block
 	for round := 0; round < ROUND_NUM; round++ {
 		for i := 0; i < len(input_blocks); i++ {
+
 			input_blocks[i] = unfeistel_round(input_blocks[i], sboxes[round])
 		}
 	}

@@ -7,8 +7,6 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 def keygen(pw:bytes,len:int) -> bytes:
     salt = b"\x00"   #os.urandom(16)
-    print(f"pw: {[i for i in pw]}")
-    print([i for i in salt])
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=len, # bytes --> 16*8 
@@ -17,7 +15,6 @@ def keygen(pw:bytes,len:int) -> bytes:
     )
 
     key = kdf.derive(pw)
-    print(f"key: {[i for i in key]}")
     return key
 
 def main():

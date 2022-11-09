@@ -111,7 +111,9 @@ func break_to_blocks(input []byte) [][]byte {
 		input_blocks = append(input_blocks, input[:8])
 		input = input[8:]
 	}
-	input_blocks = append(input_blocks, input)
+	if len(input) > 0 {
+		input_blocks = append(input_blocks, input)
+	}
 	return input_blocks
 }
 

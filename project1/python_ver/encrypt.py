@@ -53,13 +53,12 @@ def feistel_round(block: bytes, sbox: list) -> bytes:
     left = block[:4]
     tmp = left
     right = block[4:8]
-    #print(f"left: {left}\nright:{right}")
+    #print(f"left: {left}\nright:{[i for i in right]}")
 
     outp = shuffle(right, sbox)
     # outp=right
     left = right
     right = bytes([a ^ b for a, b in zip(outp, tmp)])
-    #print(f"left: {left}\nright:{right}")
 
     return left+right
 
@@ -80,14 +79,12 @@ def encrypt(password: bytes, input_bytes: bytes,print_to_stdout=True) -> bytes:
     #    for ch in block:
     #        print(hex(ch),end=" ")
     # print()
-    # print()
 
     ciphertext = b""
     for tmp in range(ROUND_NUM):
         for i in range(len(input_blocks)):
             input_blocks[i] = feistel_round(input_blocks[i], sboxes[tmp])
 
-        # print(input_blocks)
         # for block in input_blocks:
         #     for ch in block:
         #      print(hex(ch),end=" ")
@@ -119,7 +116,6 @@ def des_encrypt(key: bytes, input_bytes: bytes) -> bytes:
 
     
 
-
 if __name__ == "__main__":
     if len(sys.argv) < 1 or len(sys.argv)>3:
         print("Usage: <content_to_encrypt> | python3 encrypt.py <text_key>")
@@ -129,6 +125,8 @@ if __name__ == "__main__":
     key = sys.argv[1].encode("utf-8")
     input_text = read_from_stdin()  # TODO add verification if theres something here
     input_bytes = input_text.encode('utf-8')
+    print([i for i in input_bytes])
+    
     if len(sys.argv) > 2 and sys.argv[2] == "-des":
         encrypted = des_encrypt(key, input_bytes)
     else:

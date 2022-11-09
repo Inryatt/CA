@@ -43,7 +43,6 @@ def generate_sbox(key : bytes) -> list[bytes]:
 
     for ch in seed:
         seedbox.append(ch)
- 
     box = [str(i).encode('utf-8') for i in range(256)]
 
     # the values in seedbox the shift in position that will apply to each
@@ -52,6 +51,7 @@ def generate_sbox(key : bytes) -> list[bytes]:
     seedbox=[(seedbox[i]+i)%len(seedbox) for i in range(len(seedbox))]
 
     shuffle_pairs = [(x,y) for x,y in zip(seedbox, box)]
+
     shuffle_pairs.sort(key=lambda y: y[0])
     box = [y for x,y in shuffle_pairs]
 
@@ -63,7 +63,6 @@ def generate_sbox(key : bytes) -> list[bytes]:
     #for i in range(256):
     #    if int(box[i].decode('utf-8'))==i:
     #        print("BAD")
-    #print(box)
     return box
 
 def salt_key(key:bytes) -> bytes:
@@ -71,9 +70,8 @@ def salt_key(key:bytes) -> bytes:
     salt=0
     for b in key:
         salt = salt + b
-    print("salt: ",salt)
     keycopy = key+str(salt).encode('utf-8')
-    print(f"Salted key: {[i for i in keycopy]}")
+
     a= keygen(keycopy,32)
     return a
 
@@ -100,7 +98,6 @@ def get_sboxes(key:bytes,print_to_stdout=True)->list[bytes]:
         keycopy=key
         for i in range(ROUND_NUM):
             keycopy = transform_key(keycopy)
-#            print(f"keycopy: {[i for i in keycopy]}")
             sboxes.append(generate_sbox(keycopy))
         # Write S-Boxes to file
         with open(boxpath, "w+") as f:
