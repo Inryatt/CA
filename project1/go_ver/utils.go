@@ -71,7 +71,12 @@ func pad(input_blocks [][]byte) [][]byte {
 	last_block := input_blocks[len(input_blocks)-1]
 	missing := 8 - last_block_len
 	if missing == 0 {
-		input_blocks = append(input_blocks, []byte{8, 8, 8, 8, 8, 8, 8, 8})
+		pad_b := []byte("8")
+		padding := make([]byte, 8)
+		for i := range padding {
+			padding[i] = pad_b[0]
+		}
+		input_blocks = append(input_blocks, []byte(padding))
 
 		return input_blocks
 	} else {
@@ -87,6 +92,7 @@ func unpad(inputText []byte) []byte {
 	/* Unpads a string previously padded. Might work with bytes, idk */
 	toRemove_str := inputText[len(inputText)-1:]
 	toRemove, err := strconv.Atoi(string(toRemove_str))
+
 	if err != nil {
 		panic("[!] Could not unpad!")
 	}

@@ -53,11 +53,9 @@ func decrypt(password []byte, input_bytes []byte, print_to_stdout bool) []byte {
 	for round := 0; round < ROUND_NUM; round++ {
 		boxnum = ROUND_NUM - round - 1
 		for i := 0; i < len(input_blocks); i++ {
-			fmt.Println(input_blocks[i])
 
 			input_blocks[i] = unfeistel_round(input_blocks[i], sboxes[boxnum])
 		}
-		fmt.Println(input_blocks)
 	}
 
 	// Join the blocks into a single byte slice

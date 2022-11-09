@@ -1,7 +1,5 @@
 package main
 
-import "fmt"
-
 func shuffle(inp []byte, sbox []int) []byte {
 	if len(inp) != 4 {
 		panic("Mismatched block size!")
@@ -60,11 +58,9 @@ func encrypt(password []byte, input_bytes []byte, print_to_stdout bool) []byte {
 	input_blocks := break_to_blocks(input_bytes)
 
 	//fmt.Println(sboxes)
-	fmt.Println(input_blocks)
 	// pad input
 	input := pad(input_blocks)
 	// encrypt
-	fmt.Println(input_blocks)
 
 	encrypted := make([]byte, 0)
 

@@ -90,7 +90,7 @@ func print_usage() {
 func speed(des bool, edes bool) {
 	buffer := urandom(4096)
 	if edes {
-		edes_time := []int{}
+		edes_time := []float32{}
 		for i := 0; i < 100; i++ {
 			key := urandom(20)
 			start := time.Now()
@@ -101,7 +101,7 @@ func speed(des bool, edes bool) {
 			//	panic("[!] Something failed here!")
 			//}
 			decrypted = decrypted
-			edes_time = append(edes_time, int(end.Sub(start).Milliseconds()))
+			edes_time = append(edes_time, float32(end.Sub(start).Seconds()))
 		}
 		// get minimum value in edes_time
 		min := edes_time[0]
