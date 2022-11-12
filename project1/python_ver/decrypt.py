@@ -1,4 +1,5 @@
 
+
 import sys
 from keygen import keygen
 from constants import EDES_BLOCK_SIZE,ROUND_NUM,DES_BLOCK_SIZE
@@ -16,16 +17,11 @@ def unshuffle(inp:bytes,sbox:list) -> bytes:
     in1=inp[1]
     in2=inp[2]
     in3=inp[3]
-#    print(sbox)
+
     out0=(in0+in1+in2+in3) %256
     out1=(in0+in1+in2) % 256
     out2=(in0+in1) % 256
     out3=in0
-
-    #print(f"out0 : {out0}")
-    #print(f"out1 : {out1}")
-    #print(f"out2 : {out2}")
-    #print(f"out3 : {out3}")
 
     out0 = sbox[out0]
     out1 = sbox[out1]
@@ -53,6 +49,7 @@ def unfeistel_round(block:bytes,sbox:list) -> bytes:
     
     right = block[:4]
     left = block[4:8]
+
     tmp = left
 
     #print(f"left: {left}\nright:{right}")
@@ -66,30 +63,18 @@ def unfeistel_round(block:bytes,sbox:list) -> bytes:
 
 
 def decrypt(password:str,input_bytes:bytes,print_to_stdout=True) -> bytes:
-    #print("Decrypting...")
-
     """Given a password, use EDES to decrypt data in byte format"""
     key = keygen(password,32) # Length is in bytes, 32 bytes -> 256 bits
     sboxes = get_sboxes(key,print_to_stdout)
 
     input_blocks = [input_bytes[n:n+EDES_BLOCK_SIZE] for n in range(0, len(input_bytes),EDES_BLOCK_SIZE) ]
-    #print("original:")
-    #for block in input_blocks:
-    #    for ch in block:
-    #        print(hex(ch),end=" ")
-    #print()
-    #print()
+
     for tmp in range(ROUND_NUM):
         boxnum = ROUND_NUM-tmp -1
-        #print(f"box number: {boxnum}")
         for i in range(len(input_blocks)):
+
             input_blocks[i]=unfeistel_round(input_blocks[i],sboxes[boxnum])
-        
-        # print(input_blocks)
-        #for block in input_blocks:
-        #    for ch in block:
-        #     print(hex(ch),end=" ")
-        #    print()
+    #    print([i for block in input_blocks for  i in block ])
 
     ptext=b""
     for block in input_blocks:
@@ -105,20 +90,17 @@ def des_decrypt(key: bytes, input_bytes: bytes )-> bytes:
     key = keygen(key, DES_BLOCK_SIZE)  # To pass bits to bytes
     cipher = DES.new(key, DES.MODE_ECB)
     plaintext=b""
+    input_bytes = [input_bytes[n:n+DES_BLOCK_SIZE] for n in range(0, len(input_bytes),DES_BLOCK_SIZE) ]
     while True:
-            txt=input_bytes[:DES_BLOCK_SIZE]
-            if not txt:
-                break
-            else:
-                if len(txt) < DES_BLOCK_SIZE:
-                    plaintext+=cipher.decrypt(unpad(txt, DES_BLOCK_SIZE))
+        if len(input_bytes)==1:
+                    plaintext+=des_unpad(cipher.decrypt(input_bytes[0]),DES_BLOCK_SIZE)
                     break
-                else:
-                    plaintext+=cipher.decrypt(txt)
-            input_bytes=input_bytes[DES_BLOCK_SIZE:]
+        else:
+                    plaintext+=cipher.decrypt(input_bytes[0])
+        input_bytes=input_bytes[1:]
     return plaintext
-            
-                    
+
+
 
 if __name__=="__main__":
     if len(sys.argv)<1:

@@ -6,23 +6,22 @@ from cryptography. hazmat.primitives import hashes
 
 def pad(input_blocks:list) -> list:
     """Pads a list of blocks with plaintext for EDES"""
-
     input= input_blocks[-1]
     missing = EDES_BLOCK_SIZE - len(input)
     if missing == 0:
         padding=b""
         for i in range(EDES_BLOCK_SIZE):
-            padding+=str(EDES_BLOCK_SIZE).encode('utf-8')
+            padding+=b'\x08'
         input_blocks+=[padding]
     else:
         for i in range(missing):
-            input+=str(missing).encode('utf-8')
+            input+=missing.to_bytes(1,byteorder='big')
         input_blocks[-1] = input
     return input_blocks
 
 def unpad(input_text:str) -> str:
     """Unpads a string previously padded. Might work with bytes, idk"""
-    to_remove=int(chr(input_text[-1]))
+    to_remove=int(input_text[-1])
     input_text=input_text[:-to_remove]
     return input_text
 

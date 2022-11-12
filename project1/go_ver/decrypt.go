@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"crypto/des"
+	"fmt"
+)
 
 func unshuffle(inp []byte, sbox []int) []byte {
 	if len(inp) != 4 {
@@ -69,4 +72,43 @@ func decrypt(password []byte, input_bytes []byte, print_to_stdout bool) []byte {
 	}
 
 	return []byte(ptext)
+}
+
+func des_decrypt(key []byte, input_bytes []byte) []byte {
+	key = keygen(key, 8)
+	cipher, err := des.NewCipher(key)
+	if err != nil {
+		panic(err)
+	}
+
+	plaintext := []byte{}
+	input_blocks := break_to_blocks(input_bytes)
+	for {
+		if len(input_blocks) > 1 {
+			txt := make([]byte, 8)
+			copy(txt, input_blocks[0])
+			input_blocks = input_blocks[1:]
+			tmp := make([]byte, 8)
+			//fmt.Println(txt)
+			cipher.Decrypt(tmp, txt)
+			//fmt.Println(tmp)
+
+			plaintext = append(plaintext, tmp...)
+
+		} else if len(input_blocks) == 1 {
+			txt := make([]byte, 8)
+			copy(txt, input_blocks[0])
+			//fmt.Println(txt)
+
+			tmp := make([]byte, 8)
+			cipher.Decrypt(tmp, txt)
+			//fmt.Println(tmp)
+
+			//tmp = des_unpad(tmp)
+
+			plaintext = append(plaintext, tmp...)
+			break
+		}
+	}
+	return plaintext
 }

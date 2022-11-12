@@ -1,5 +1,10 @@
 package main
 
+//import DES algorithm
+import (
+	"crypto/des"
+)
+
 func shuffle(inp []byte, sbox []int) []byte {
 	if len(inp) != 4 {
 		panic("Mismatched block size!")
@@ -67,10 +72,6 @@ func encrypt(password []byte, input_bytes []byte, print_to_stdout bool) []byte {
 	for tmp := 0; tmp < 16; tmp++ {
 
 		for i := 0; i < len(input); i++ {
-			// SLICES ARE POINTERS
-			// SLICES ARE POINTERS
-			// SLICES ARE POINTERS
-
 			input_copy := make([]byte, len(input[i]))
 			copy(input_copy, input[i])
 			input[i] = feistel_round(input_copy, sboxes[tmp])
@@ -82,4 +83,40 @@ func encrypt(password []byte, input_bytes []byte, print_to_stdout bool) []byte {
 		encrypted = append(encrypted, b...)
 	}
 	return encrypted
+}
+
+// Encrypt using single DES (not EDES)
+
+func des_encrypt(key []byte, input_bytes []byte) []byte {
+	key = keygen(key, 8)
+	cipher, err := des.NewCipher(key)
+	if err != nil {
+		panic(err)
+	}
+
+	ciphertext := []byte{}
+	input_blocks := break_to_blocks(input_bytes)
+	input_blocks = des_pad(input_blocks)
+	for {
+		if len(input_blocks) > 1 {
+			block := make([]byte, 8)
+			copy(block, input_blocks[0])
+			input_blocks = input_blocks[1:]
+			tmp := make([]byte, 8)
+
+			cipher.Encrypt(tmp, block)
+			ciphertext = append(ciphertext, tmp...)
+
+		} else if len(input_blocks) == 1 {
+			txt := make([]byte, 8)
+			copy(txt, input_blocks[0])
+			tmp := make([]byte, 8)
+
+			cipher.Encrypt(tmp, txt)
+			ciphertext = append(ciphertext, tmp...)
+			break
+		}
+
+	}
+	return ciphertext
 }

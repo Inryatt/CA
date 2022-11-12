@@ -71,32 +71,63 @@ func pad(input_blocks [][]byte) [][]byte {
 	last_block := input_blocks[len(input_blocks)-1]
 	missing := 8 - last_block_len
 	if missing == 0 {
-		pad_b := []byte("8")
-		padding := make([]byte, 8)
-		for i := range padding {
-			padding[i] = pad_b[0]
-		}
-		input_blocks = append(input_blocks, []byte(padding))
-
+		pad_b := []byte{8, 8, 8, 8, 8, 8, 8, 8}
+		input_blocks = append(input_blocks, pad_b)
 		return input_blocks
 	} else {
 		for i := 0; i < missing; i++ {
-			last_block = append(last_block, strconv.Itoa(missing)...)
+			last_block = append(last_block, byte(missing))
 		}
 	}
 	input_blocks[len(input_blocks)-1] = last_block
 	return input_blocks
 }
 
-func unpad(inputText []byte) []byte {
-	/* Unpads a string previously padded. Might work with bytes, idk */
-	toRemove_str := inputText[len(inputText)-1:]
-	toRemove, err := strconv.Atoi(string(toRemove_str))
+func des_pad(input_blocks [][]byte) [][]byte {
+	last_block_len := len(input_blocks[len(input_blocks)-1])
+	last_block := input_blocks[len(input_blocks)-1]
+	missing := 8 - last_block_len
+	if missing == 0 {
+		padding := []byte{8, 8, 8, 8, 8, 8, 8, 8}
 
-	if err != nil {
-		panic("[!] Could not unpad!")
+		input_blocks = append(input_blocks, []byte(padding))
+
+		return input_blocks
+	} else {
+		for i := 0; i < missing; i++ {
+			last_block = append(last_block, byte(missing))
+		}
 	}
-	inputText = inputText[:len(inputText)-toRemove]
+	input_blocks[len(input_blocks)-1] = last_block
+	return input_blocks
+}
+
+/*
+func single_pad(input []byte) []byte {
+	pad_b := []byte("8")
+	padding := make([]byte, 8)
+	for i := range padding {
+		padding[i] = pad_b[0]
+	}
+	input = append(input, []byte(padding)...)
+	return input
+}
+*/
+func des_unpad(inputText []byte) []byte {
+	toRemove := inputText[len(inputText)-1:]
+	toRemove_int := int(toRemove[0])
+	inputText = inputText[:len(inputText)-toRemove_int]
+
+	return inputText
+}
+
+func unpad(inputText []byte) []byte {
+
+	toRemove := inputText[len(inputText)-1:]
+
+	toRemove_int := int(toRemove[0])
+
+	inputText = inputText[:len(inputText)-toRemove_int]
 	return inputText
 }
 

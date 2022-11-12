@@ -39,24 +39,17 @@ def shuffle(inp: bytes, sbox: list) -> bytes:
 
     out = out0+out1+out2+out3
     return out
-    # Dark magic
 
 
 def feistel_round(block: bytes, sbox: list) -> bytes:
-    #print("using box :")
-    #print(sbox)
     if len(block) != EDES_BLOCK_SIZE:
         print("Mismatched block size!")
         exit(1)
-    # print(sbox)
-    # print()
     left = block[:4]
     tmp = left
     right = block[4:8]
-    #print(f"left: {left}\nright:{[i for i in right]}")
 
     outp = shuffle(right, sbox)
-    # outp=right
     left = right
     right = bytes([a ^ b for a, b in zip(outp, tmp)])
 
@@ -74,22 +67,10 @@ def encrypt(password: bytes, input_bytes: bytes,print_to_stdout=True) -> bytes:
     # pad block
     input_blocks = pad(input_blocks)
 
-    # print("original:")
-    # for block in input_blocks:
-    #    for ch in block:
-    #        print(hex(ch),end=" ")
-    # print()
-
     ciphertext = b""
     for tmp in range(ROUND_NUM):
         for i in range(len(input_blocks)):
             input_blocks[i] = feistel_round(input_blocks[i], sboxes[tmp])
-
-        # for block in input_blocks:
-        #     for ch in block:
-        #      print(hex(ch),end=" ")
-        #     print()
-        # print("end round")
 
     for block in input_blocks:
         ciphertext += block
@@ -101,17 +82,15 @@ def des_encrypt(key: bytes, input_bytes: bytes) -> bytes:
     key = keygen(key, DES_BLOCK_SIZE)
     cipher = DES.new(key, DES.MODE_ECB)
     ciphertext=b""
+    input_bytes = [input_bytes[n:n+DES_BLOCK_SIZE] for n in range(0, len(input_bytes),DES_BLOCK_SIZE) ]
+
     while True:
-            txt=input_bytes[:DES_BLOCK_SIZE]
-            if not txt:
-                break
-            else:
-                if len(txt)<DES_BLOCK_SIZE:
-                    ciphertext+=cipher.encrypt(des_pad(txt,DES_BLOCK_SIZE))
-                    break
-                else:
-                    ciphertext+=cipher.encrypt(txt)
-            input_bytes=input_bytes[DES_BLOCK_SIZE:]
+        if len(input_bytes)==1:
+            ciphertext+=cipher.encrypt(des_pad(input_bytes[0],DES_BLOCK_SIZE))
+            break
+        else:
+            ciphertext+=cipher.encrypt(input_bytes[0])
+        input_bytes=input_bytes[1:]
     return ciphertext
 
     

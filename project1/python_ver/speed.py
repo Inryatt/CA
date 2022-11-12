@@ -8,15 +8,16 @@ def main():
     edes_times=[]
     des_times=[]
     if "edes" in sys.argv:
-     for i in range(1000):
+     for i in range(100):
         key=urandom(10) # can be any size :)
         start = clock_gettime(CLOCK_REALTIME)
         encrypted=encrypt.encrypt(key,buffer,False)
         decrypted=decrypt.decrypt(key,encrypted,False)
+        end = clock_gettime(CLOCK_REALTIME)
+
         if decrypted!=buffer:
             print("[!] Something failed here!")
             exit(1)
-        end = clock_gettime(CLOCK_REALTIME)
         edes_times.append(end-start)
      print(min(edes_times))
 
@@ -26,10 +27,11 @@ def main():
         start = clock_gettime(CLOCK_REALTIME)
         encrypted=encrypt.des_encrypt(key,buffer)
         decrypted=decrypt.des_decrypt(key,encrypted)
+        end = clock_gettime(CLOCK_REALTIME)
+
         if decrypted!=buffer:
             print("[!] Something failed here!")
             exit(1)
-        end = clock_gettime(CLOCK_REALTIME)
         des_times.append(end-start)
      print(min(des_times))
 

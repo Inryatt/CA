@@ -17,13 +17,13 @@ func main() {
 	dec := flag.Bool("d", false, "decrypt")
 	enc := flag.Bool("e", false, "encrypt")
 	speed_flag := flag.Bool("s", false, "measure speed")
-
+	des := flag.Bool("des", false, "use DES ")
 	flag.Parse()
 	args := flag.Args()
 
 	key := []byte(args[0])
 	if *speed_flag {
-		if len(args) != 1 {
+		if len(args) < 1 || len(args) > 2 {
 			panic("Usage: go_ver -s des/edes")
 		}
 		des := false
@@ -56,7 +56,12 @@ func main() {
 		if err != nil {
 			panic("[!] Error decoding input text!")
 		}
-		decrypted := decrypt(key, input_bytes, true)
+		var decrypted []byte
+		if *des {
+			decrypted = des_decrypt(key, input_bytes)
+		} else {
+			decrypted = decrypt(key, input_bytes, true)
+		}
 		fmt.Println("[!] Decrypted!")
 		fmt.Println("[-] Output: ", string(decrypted))
 		return
@@ -66,8 +71,12 @@ func main() {
 
 		fmt.Println("[-] Encrypting...")
 		input_bytes := []byte(input_text)
-
-		encrypted := hex.EncodeToString(encrypt(key, input_bytes, false))
+		var encrypted string
+		if *des {
+			encrypted = hex.EncodeToString(des_encrypt(key, input_bytes))
+		} else {
+			encrypted = hex.EncodeToString(encrypt(key, input_bytes, false))
+		}
 		fmt.Println("[-] Encrypted!")
 
 		fmt.Println("[-] Output: ", string(encrypted))
@@ -89,9 +98,10 @@ func print_usage() {
 
 func speed(des bool, edes bool) {
 	buffer := urandom(4096)
+
 	if edes {
 		edes_time := []float32{}
-		for i := 0; i < 100; i++ {
+		for i := 0; i < 1000; i++ {
 			key := urandom(20)
 			start := time.Now()
 			encrypted := encrypt(key, buffer, false)
@@ -110,10 +120,33 @@ func speed(des bool, edes bool) {
 				min = v
 			}
 		}
-		fmt.Println(min)
+		fmt.Printf("%fs\n", min)
 	}
 	if des {
-		// pass
+		des_time := []float32{}
+		for i := 0; i < 100000; i++ {
+			key := urandom(20)
+			start := time.Now()
+			encrypted := des_encrypt(key, buffer)
+			decrypted := des_decrypt(key, encrypted)
+			end := time.Now()
+			//if !cmp.Equal(decrypted, buffer) {
+			//	panic("[!] Something failed here!")
+			//}
+			//fmt.Println(buffer[:100])
+			//fmt.Println(decrypted[:100])
+			//fmt.Println("==========")
+			decrypted = decrypted
+			des_time = append(des_time, float32(end.Sub(start).Seconds()))
+		}
+		// get minimum value in edes_time
+		min := des_time[0]
+		for _, v := range des_time {
+			if v < min {
+				min = v
+			}
+		}
+		fmt.Printf("%fs\n", min)
 	}
 }
 
