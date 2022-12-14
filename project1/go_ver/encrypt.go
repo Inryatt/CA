@@ -1,6 +1,5 @@
 package main
 
-//import DES algorithm
 import (
 	"crypto/des"
 )
@@ -33,39 +32,26 @@ func feistel_round(block []byte, sbox []int) []byte {
 		panic("Mismatched block size!")
 	}
 	left := block[:4]
-	//fmt.Println("left: ", left)
 	tmp := left
 	right := block[4:]
-	//fmt.Println("right: ", right)
-	//fmt.Printf("left: %x, right: %x\n", left, right)
+
 	outp := shuffle(right, sbox)
-	//fmt.Printf("shuffled: %x\n", shuffled)
 	left = right
-	// make right empty byte slice
 	right = make([]byte, 0)
-	// xor the elements of outp and temp
 	for i := 0; i < len(outp); i++ {
 		right = append(right, outp[i]^tmp[i])
 	}
-	//fmt.Printf("left: %x, right: %x\n", left, right)
-	//fmt.Printf("xored: %x\n", xored)
+
 	return append(left, right...)
 }
 
 func encrypt(password []byte, input_bytes []byte, print_to_stdout bool) []byte {
-	// generate sboxes
-	//fmt.Println("2 Key: ", password)
 
 	key := keygen(password, EDES_KEY_SIZE)
-
 	sboxes := get_sboxes(key, print_to_stdout)
-
 	input_blocks := break_to_blocks(input_bytes)
 
-	//fmt.Println(sboxes)
-	// pad input
 	input := pad(input_blocks)
-	// encrypt
 
 	encrypted := make([]byte, 0)
 
@@ -97,10 +83,12 @@ func des_encrypt(key []byte, input_bytes []byte) []byte {
 	ciphertext := []byte{}
 	input_blocks := break_to_blocks(input_bytes)
 	input_blocks = des_pad(input_blocks)
+
 	for {
 		if len(input_blocks) > 1 {
 			block := make([]byte, 8)
 			copy(block, input_blocks[0])
+
 			input_blocks = input_blocks[1:]
 			tmp := make([]byte, 8)
 
@@ -110,8 +98,8 @@ func des_encrypt(key []byte, input_bytes []byte) []byte {
 		} else if len(input_blocks) == 1 {
 			txt := make([]byte, 8)
 			copy(txt, input_blocks[0])
-			tmp := make([]byte, 8)
 
+			tmp := make([]byte, 8)
 			cipher.Encrypt(tmp, txt)
 			ciphertext = append(ciphertext, tmp...)
 			break

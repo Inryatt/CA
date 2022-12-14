@@ -18,6 +18,7 @@ func unshuffle(inp []byte, sbox []int) []byte {
 	out1 := (in0 + in1 + in2) % 256
 	out2 := (in0 + in1) % 256
 	out3 := in0
+
 	out0 = sbox[out0]
 	out1 = sbox[out1]
 	out2 = sbox[out2]
@@ -61,7 +62,6 @@ func decrypt(password []byte, input_bytes []byte, print_to_stdout bool) []byte {
 		}
 	}
 
-	// Join the blocks into a single byte slice
 	decrypted := make([]byte, 0)
 	for _, b := range input_blocks {
 		decrypted = append(decrypted, b...)
@@ -89,22 +89,18 @@ func des_decrypt(key []byte, input_bytes []byte) []byte {
 			copy(txt, input_blocks[0])
 			input_blocks = input_blocks[1:]
 			tmp := make([]byte, 8)
-			//fmt.Println(txt)
 			cipher.Decrypt(tmp, txt)
-			//fmt.Println(tmp)
 
 			plaintext = append(plaintext, tmp...)
 
 		} else if len(input_blocks) == 1 {
 			txt := make([]byte, 8)
 			copy(txt, input_blocks[0])
-			//fmt.Println(txt)
 
 			tmp := make([]byte, 8)
 			cipher.Decrypt(tmp, txt)
-			//fmt.Println(tmp)
 
-			//tmp = des_unpad(tmp)
+			tmp = des_unpad(tmp)
 
 			plaintext = append(plaintext, tmp...)
 			break

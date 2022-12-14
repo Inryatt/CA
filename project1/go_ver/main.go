@@ -10,10 +10,6 @@ import (
 )
 
 func main() {
-	// parse args from command line to get key
-	//
-	//fmt.Println("1 Key: ", key)
-
 	dec := flag.Bool("d", false, "decrypt")
 	enc := flag.Bool("e", false, "encrypt")
 	speed_flag := flag.Bool("s", false, "measure speed")
@@ -22,10 +18,12 @@ func main() {
 	args := flag.Args()
 
 	key := []byte(args[0])
+
 	if *speed_flag {
 		if len(args) < 1 || len(args) > 2 {
 			panic("Usage: go_ver -s des/edes")
 		}
+
 		des := false
 		edes := false
 		for _, arg := range args {
@@ -50,16 +48,17 @@ func main() {
 
 	if *dec {
 		fmt.Println("[-] Decrypting...")
-		fmt.Println(input_text)
 		input_bytes, err := hex.DecodeString(input_text)
-		fmt.Println("Input bytes: ", input_bytes)
 		if err != nil {
 			panic("[!] Error decoding input text!")
 		}
 		var decrypted []byte
 		if *des {
+			fmt.Println("[-] Using DES.")
+
 			decrypted = des_decrypt(key, input_bytes)
 		} else {
+			fmt.Println("[-] Using EDES.")
 			decrypted = decrypt(key, input_bytes, true)
 		}
 		fmt.Println("[!] Decrypted!")
@@ -68,19 +67,17 @@ func main() {
 	}
 
 	if *enc {
-
 		fmt.Println("[-] Encrypting...")
 		input_bytes := []byte(input_text)
 		var encrypted string
+
 		if *des {
 			encrypted = hex.EncodeToString(des_encrypt(key, input_bytes))
 		} else {
 			encrypted = hex.EncodeToString(encrypt(key, input_bytes, false))
 		}
 		fmt.Println("[-] Encrypted!")
-
 		fmt.Println("[-] Output: ", string(encrypted))
-
 		os.WriteFile("encrypted", []byte(encrypted), 0644)
 		return
 	}
@@ -100,8 +97,8 @@ func speed(des bool, edes bool) {
 	buffer := urandom(4096)
 
 	if edes {
-		edes_time := []float32{}
-		for i := 0; i < 1000; i++ {
+		edes_time := []float64{}
+		for i := 0; i < 100000; i++ {
 			key := urandom(20)
 			start := time.Now()
 			encrypted := encrypt(key, buffer, false)
@@ -111,9 +108,8 @@ func speed(des bool, edes bool) {
 			//	panic("[!] Something failed here!")
 			//}
 			decrypted = decrypted
-			edes_time = append(edes_time, float32(end.Sub(start).Seconds()))
+			edes_time = append(edes_time, end.Sub(start).Seconds())
 		}
-		// get minimum value in edes_time
 		min := edes_time[0]
 		for _, v := range edes_time {
 			if v < min {
@@ -123,7 +119,7 @@ func speed(des bool, edes bool) {
 		fmt.Printf("%fs\n", min)
 	}
 	if des {
-		des_time := []float32{}
+		des_time := []float64{}
 		for i := 0; i < 100000; i++ {
 			key := urandom(20)
 			start := time.Now()
@@ -133,11 +129,9 @@ func speed(des bool, edes bool) {
 			//if !cmp.Equal(decrypted, buffer) {
 			//	panic("[!] Something failed here!")
 			//}
-			//fmt.Println(buffer[:100])
-			//fmt.Println(decrypted[:100])
-			//fmt.Println("==========")
+
 			decrypted = decrypted
-			des_time = append(des_time, float32(end.Sub(start).Seconds()))
+			des_time = append(des_time, end.Sub(start).Seconds())
 		}
 		// get minimum value in edes_time
 		min := des_time[0]

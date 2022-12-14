@@ -1,7 +1,7 @@
 
 EDES_BLOCK_SIZE = 8
 ROUND_NUM=16
-SBOX_PATH = "extras/sboxes/"
+SBOX_PATH = "sboxes/"
 EDES_KEY_SIZE = 32 # in bytes
 SBOX_SIZE = 256
 DES_BLOCK_SIZE = 8

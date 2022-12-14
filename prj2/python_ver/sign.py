@@ -26,4 +26,3 @@ def sign_rsa_PKCS1(message, private_key):
     return signature
 
 
-def sign_el_

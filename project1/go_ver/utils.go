@@ -64,12 +64,11 @@ func test_main() {
 	//fmt.Printf("%x\n", test_sbox)
 }
 
-//Given a list of strings, pad the last one with bytes containing the number of characters needed to get to length of 8
-//If the last string is already 8 characters, add a new string with 8 bytes of 8
 func pad(input_blocks [][]byte) [][]byte {
 	last_block_len := len(input_blocks[len(input_blocks)-1])
 	last_block := input_blocks[len(input_blocks)-1]
 	missing := 8 - last_block_len
+
 	if missing == 0 {
 		pad_b := []byte{8, 8, 8, 8, 8, 8, 8, 8}
 		input_blocks = append(input_blocks, pad_b)
@@ -79,6 +78,7 @@ func pad(input_blocks [][]byte) [][]byte {
 			last_block = append(last_block, byte(missing))
 		}
 	}
+
 	input_blocks[len(input_blocks)-1] = last_block
 	return input_blocks
 }
@@ -87,6 +87,7 @@ func des_pad(input_blocks [][]byte) [][]byte {
 	last_block_len := len(input_blocks[len(input_blocks)-1])
 	last_block := input_blocks[len(input_blocks)-1]
 	missing := 8 - last_block_len
+
 	if missing == 0 {
 		padding := []byte{8, 8, 8, 8, 8, 8, 8, 8}
 
@@ -98,6 +99,7 @@ func des_pad(input_blocks [][]byte) [][]byte {
 			last_block = append(last_block, byte(missing))
 		}
 	}
+
 	input_blocks[len(input_blocks)-1] = last_block
 	return input_blocks
 }
@@ -117,16 +119,13 @@ func des_unpad(inputText []byte) []byte {
 	toRemove := inputText[len(inputText)-1:]
 	toRemove_int := int(toRemove[0])
 	inputText = inputText[:len(inputText)-toRemove_int]
-
 	return inputText
 }
 
+// ITS THE SAME PICTURE
 func unpad(inputText []byte) []byte {
-
 	toRemove := inputText[len(inputText)-1:]
-
 	toRemove_int := int(toRemove[0])
-
 	inputText = inputText[:len(inputText)-toRemove_int]
 	return inputText
 }
@@ -159,9 +158,8 @@ func keygen(pw []byte, len int) []byte {
 }
 
 func salt_key(key []byte) []byte {
-	// Despite the name, this func is used to generate a unique name for the sbox file that does not give away the key used
+	// Despite the name, this func is used to generate a unique name for the sbox file
 	salt := 0
-	//iterate over the individual bytes of the key
 	for _, b := range key {
 		salt += int(b)
 	}
@@ -177,6 +175,7 @@ func transform_key(key []byte) []byte {
 	return key
 }
 
+//unused, em caso de emergência...
 func get_int_index(el int, searchlist []int) int {
 	for i, b := range searchlist {
 		if b == el {
@@ -189,12 +188,10 @@ func get_int_index(el int, searchlist []int) int {
 
 func generate_sbox(key []byte) []int {
 	// Derive key to get our seed
-	//fmt.Printf("%x\n\n", key)
 	seedhash := make([]byte, 256)
 	c1 := sha3.NewShake256()
 	c1.Write(key)
 	c1.Read(seedhash)
-	// get a list of ints from a list of bytes with the values of these bytes
 
 	seedbox := make([]int, len(seedhash))
 	for i, b := range seedhash {
@@ -208,35 +205,29 @@ func generate_sbox(key []byte) []int {
 	}
 
 	for i, b := range seedbox {
-		// add index to element
 		seedbox[i] = (b + i) % len(seedbox)
 	}
 
-	// declare a list of pairs of ints called shuffles
 	shuffle_pairs := make([][2]int, 0)
 
 	for i := 0; i < len(seedbox); i++ {
 		shuffle_pairs = append(shuffle_pairs, [2]int{seedbox[i], box[i]})
 	}
 
-	// sort the list of pairs by the first element of each pair
 	sort.Slice(shuffle_pairs, func(i, j int) bool {
 		if shuffle_pairs[i][0] != shuffle_pairs[j][0] {
 			return shuffle_pairs[i][0] < shuffle_pairs[j][0]
 		} else if shuffle_pairs[i][0] == shuffle_pairs[j][0] {
 			return shuffle_pairs[i][1] < shuffle_pairs[j][1]
 		}
-		panic("THIS SHOULD NOT HAPPEN")
+		panic("[!] uh oh")
 		return false
 	})
 
-	// get the second element of each pair and put it in a new list
 	shuffled_box := make([]int, len(shuffle_pairs))
 	for i, pair := range shuffle_pairs {
 		shuffled_box[i] = pair[1]
 	}
-	//fmt.Println(seedbox)
-	//fmt.Println(shuffle_pairs)
 
 	return shuffled_box
 }
@@ -244,9 +235,7 @@ func generate_sbox(key []byte) []int {
 func get_sboxes(key []byte, print_to_stdout bool) [][]int {
 	sboxes := make([][]int, 0)
 	new_pass := salt_key(key)
-
 	filename_box := hex.EncodeToString(new_pass)
-
 	boxpath := SBOX_PATH + filename_box
 
 	if _, err := os.Stat(SBOX_PATH); os.IsNotExist(err) {
@@ -256,9 +245,7 @@ func get_sboxes(key []byte, print_to_stdout bool) [][]int {
 		}
 	}
 
-	// check if the file exists
 	if _, err := os.Stat(boxpath); os.IsNotExist(err) {
-		// file does not exist
 		if print_to_stdout {
 			fmt.Println("[-] No sboxes found. Creating..")
 		}
@@ -266,11 +253,9 @@ func get_sboxes(key []byte, print_to_stdout bool) [][]int {
 		keycopy := key
 		for i := 0; i < ROUND_NUM; i++ {
 			keycopy = transform_key(keycopy)
-			//fmt.Println("Keycopy: ", keycopy)
 			ret_sboxes = append(ret_sboxes, generate_sbox(keycopy))
 		}
 
-		// write the sboxes to a file
 		file, err := os.Create(boxpath)
 		if err != nil {
 			fmt.Println("[!] Error creating sbox file!")
@@ -291,7 +276,6 @@ func get_sboxes(key []byte, print_to_stdout bool) [][]int {
 		file.Sync()
 		sboxes = ret_sboxes
 	} else {
-		// file exists
 		if print_to_stdout {
 			fmt.Println("[-] Sboxes found! Importing..")
 		}

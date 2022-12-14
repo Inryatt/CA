@@ -1,6 +1,5 @@
 import sys
 
-from os import read
 from keygen import keygen
 from constants import EDES_BLOCK_SIZE, ROUND_NUM, EDES_KEY_SIZE,DES_BLOCK_SIZE 
 from utils import get_sboxes, pad, read_from_stdin
@@ -16,7 +15,6 @@ def shuffle(inp: bytes, sbox: list) -> bytes:
     in1 = inp[1]
     in2 = inp[2]
     in3 = inp[3]
-
     out0 = (in0+in1+in2+in3) % 256
     out1 = (in0+in1+in2) % 256
     out2 = (in0+in1) % 256
@@ -26,17 +24,7 @@ def shuffle(inp: bytes, sbox: list) -> bytes:
     out1 = sbox[out1]
     out2 = sbox[out2]
     out3 = sbox[out3]
-
-    # This is needed for an edge case :c
-    if out0 == "0x0":
-        out0 = b'\x00'
-    if out1 == "0x0":
-        out0 = '\x00'
-    if out2 == "0x0":
-        out0 = '\x00'
-    if out3 == "0x0":
-        out0 = '\x00'
-
+    
     out = out0+out1+out2+out3
     return out
 
@@ -64,7 +52,7 @@ def encrypt(password: bytes, input_bytes: bytes,print_to_stdout=True) -> bytes:
     input_blocks = [input_bytes[n:n+EDES_BLOCK_SIZE]
                     for n in range(0, len(input_bytes), EDES_BLOCK_SIZE)]
 
-    # pad block
+    # pad the input blocks (only last block is affected) (or a new block is added!)
     input_blocks = pad(input_blocks)
 
     ciphertext = b""
@@ -78,7 +66,6 @@ def encrypt(password: bytes, input_bytes: bytes,print_to_stdout=True) -> bytes:
 
 
 def des_encrypt(key: bytes, input_bytes: bytes) -> bytes:
-    # TODO this function stub
     key = keygen(key, DES_BLOCK_SIZE)
     cipher = DES.new(key, DES.MODE_ECB)
     ciphertext=b""
@@ -102,7 +89,7 @@ if __name__ == "__main__":
         exit(1)
     print("[-] Encrypting..")
     key = sys.argv[1].encode("utf-8")
-    input_text = read_from_stdin()  # TODO add verification if theres something here
+    input_text = read_from_stdin()  
     input_bytes = input_text.encode('utf-8')
     print([i for i in input_bytes])
     
@@ -112,7 +99,6 @@ if __name__ == "__main__":
         encrypted = encrypt(key, input_bytes)
     print("[-] Encrypted!")
     print("[-] Output stored in file 'encrypted'")
-    print(encrypted)
     print(encrypted.hex())
     with open("encrypted", "w+") as f:
         f.write(encrypted.hex())
