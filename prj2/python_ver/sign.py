@@ -2,7 +2,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 
 from cryptography.hazmat.primitives.asymmetric import rsa
-
+from cryptography.hazmat.primitives.asymmetric import ec
 
 def sign_rsa_PSS(message, private_key):
     signature = private_key.sign(
@@ -25,4 +25,10 @@ def sign_rsa_PKCS1(message, private_key):
 
     return signature
 
+def sign_ec(message, private_key):
+    signature = private_key.sign(
+    message,
+    ec.ECDSA(hashes.SHA256())
+    )
 
+    return signature
