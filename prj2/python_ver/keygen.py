@@ -25,11 +25,11 @@ def ec_keygen(curv:str,curv_size:str):
         case "nistb":
             match curv_size:
                 case "small":
-                    curve = ec.SECT163K1() # NIST B-163
+                    curve = ec.SECT163K1() # NIST K-163
                 case "medium":
-                    curve = ec.SECT283K1() # NIST B-283
+                    curve = ec.SECT283K1() # NIST K-283
                 case "large":
-                    curve = ec.SECT409K1() # NIST B-409
+                    curve = ec.SECT409K1() # NIST K-409
         case "nistk":
             match curv_size:
                 case "small":
