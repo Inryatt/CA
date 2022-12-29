@@ -87,18 +87,25 @@ def ec_perf():
     KEYS = ec_load_keys()
     print(".:----------[EC]----------:.")
     for keypair in KEYS:
+        speeds=[]
         public_key, private_key = keypair
         now_measuring = "Timing EC with curve:" + private_key.curve.name + \
-            " and key size: "+str(private_key.key_size)
+                " and key size: "+str(private_key.key_size)
+        now_measuring_short = private_key.curve.name+"_"+str(private_key.key_size)
         message = b"this is a message"
-        start = time.time()
-        signature = sign_ec(message, private_key)
-        ec_verify(message, signature, public_key)
-        end = time.time()
-        time_taken = end-start
-        print(f"{now_measuring:<40} --> {time_taken:15} ")
+        for n in range(n_size):
+            
+            start = time.time()
+            for m in range(m_size):
+                signature = sign_ec(message, private_key)
+                ec_verify(message, signature, public_key)
+            end = time.time()
+            time_taken = end-start
+            speeds.append(time_taken)
+            
+        print(f"{now_measuring:<40} --> {min(speeds)/m_size:15} ")
 
 
 if __name__ == "__main__":
-    rsa_perf()
+    #rsa_perf()
     ec_perf()
